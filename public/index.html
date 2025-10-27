@@ -12,6 +12,47 @@
 		/>
 		<link rel="stylesheet" href="css/style.css" />
 		<title>ChatCord App</title>
+		<style>
+			.auth-section {
+				margin: 20px 0;
+				padding: 20px;
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+			}
+			.user-badge {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 15px;
+			}
+			.user-badge img {
+				width: 50px;
+				height: 50px;
+				border-radius: 50%;
+				border: 2px solid var(--primary-color);
+			}
+			.user-info h3 {
+				margin: 0;
+				color: var(--primary-color);
+			}
+			.user-info p {
+				margin: 5px 0 0 0;
+				font-size: 0.9em;
+				opacity: 0.8;
+			}
+			.auth-buttons {
+				display: flex;
+				gap: 10px;
+				flex-wrap: wrap;
+			}
+			.btn-secondary {
+				background: #6c757d;
+			}
+			.btn-secondary:hover {
+				background: #5a6268;
+			}
+		</style>
 	</head>
 	<body>
 		<div class="join-container">
@@ -19,7 +60,47 @@
 				<h1><i class="fas fa-smile"></i> ChatCord</h1>
 			</header>
 			<main class="join-main">
-				<form action="chat.html">
+				<!-- Auth0 Section -->
+				<div class="auth-section" id="auth-section">
+					<div id="auth-loading">
+						<p>Loading authentication...</p>
+					</div>
+					<div id="auth-logged-out" style="display: none;">
+						<h3>🔐 Secure Login</h3>
+						<p>Login with your account for a personalized experience</p>
+						<div class="auth-buttons">
+							<a href="/login" class="btn">
+								<i class="fas fa-sign-in-alt"></i> Login with Auth0
+							</a>
+							<button onclick="skipAuth()" class="btn btn-secondary">
+								Continue as Guest
+							</button>
+						</div>
+					</div>
+					<div id="auth-logged-in" style="display: none;">
+						<div class="user-badge">
+							<img id="user-picture" src="" alt="User">
+							<div class="user-info">
+								<h3 id="user-name"></h3>
+								<p id="user-email"></p>
+							</div>
+						</div>
+						<div class="auth-buttons">
+							<a href="/profile" class="btn btn-secondary">
+								<i class="fas fa-user"></i> Profile
+							</a>
+							<a href="/logout" class="btn" style="background: #dc3545;">
+								<i class="fas fa-sign-out-alt"></i> Logout
+							</a>
+						</div>
+					</div>
+					<div id="auth-disabled" style="display: none;">
+						<p><i class="fas fa-info-circle"></i> Authentication is not configured</p>
+					</div>
+				</div>
+
+				<!-- Chat Form -->
+				<form action="chat.html" id="chat-form">
 					<div class="form-control">
 						<label for="username">Username</label>
 						<input type="text" name="username" id="username" placeholder="Enter username..." required />
@@ -39,16 +120,48 @@
 				</form>
 
 				<script>
-				// Prefill username from localStorage (if present)
-				(function(){
-					try{
-						const saved = localStorage.getItem('chatcordUser');
-						if(saved){
-							const input = document.getElementById('username');
-							if(input) input.value = saved;
+				// Check authentication status
+				async function checkAuth() {
+					try {
+						const response = await fetch('/api/user');
+						const data = await response.json();
+						
+						document.getElementById('auth-loading').style.display = 'none';
+						
+						if (data.isAuthenticated) {
+							// User is logged in
+							document.getElementById('auth-logged-in').style.display = 'block';
+							document.getElementById('user-picture').src = data.user.picture;
+							document.getElementById('user-name').textContent = data.user.name;
+							document.getElementById('user-email').textContent = data.user.email;
+							
+							// Prefill username with authenticated name
+							document.getElementById('username').value = data.user.name;
+						} else {
+							// User is not logged in
+							document.getElementById('auth-logged-out').style.display = 'block';
 						}
-					}catch(e){}
-				})();
+					} catch (error) {
+						// Auth0 not configured or error
+						document.getElementById('auth-loading').style.display = 'none';
+						document.getElementById('auth-disabled').style.display = 'block';
+						
+						// Prefill username from localStorage (if present)
+						try {
+							const saved = localStorage.getItem('chatcordUser');
+							if (saved) {
+								document.getElementById('username').value = saved;
+							}
+						} catch (e) {}
+					}
+				}
+
+				function skipAuth() {
+					document.getElementById('auth-section').style.display = 'none';
+				}
+
+				// Load authentication status
+				checkAuth();
 				</script>
 			</main>
 		</div>

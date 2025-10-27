@@ -7,16 +7,19 @@ A modern real-time chat application with persistent message history, featuring a
 ## ✨ Features
 
 - 💬 **Real-time messaging** using Socket.IO
+- 🔐 **Auth0 authentication** - Secure login with Google, GitHub, email/password, etc.
 - 🏠 **Multiple chat rooms** with separate conversations
 - 👥 **User list** showing who's in each room
 - 💾 **Message persistence** with PostgreSQL database
 - 📝 **Message history** - last 100 messages per room automatically loaded
+- 👤 **User profiles** with avatar and info (when using Auth0)
 - 🎨 **Glassmorphism UI** with neon glowing borders
 - 🌓 **Light/Dark mode toggle** with localStorage persistence
 - ⭐ **Animated starfield** background in dark mode
 - 🔄 **Smooth transitions** and hover effects
 - 📱 **Responsive design** for mobile and desktop
 - 🚀 **Ready for image uploads** (infrastructure in place)
+- ✨ **Works with or without Auth0** - graceful degradation
 
 ## 🚀 Quick Deploy to Render
 
@@ -40,6 +43,7 @@ A modern real-time chat application with persistent message history, featuring a
 ## 🛠️ Tech Stack
 
 - **Backend**: Node.js, Express
+- **Authentication**: Auth0 (OpenID Connect)
 - **Real-time**: Socket.IO
 - **Database**: PostgreSQL (via node-postgres)
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
@@ -69,11 +73,21 @@ npm install
 # Copy example env file
 copy .env.example .env
 
-# Edit .env and add your DATABASE_URL (optional for local)
-# DATABASE_URL=postgresql://localhost:5432/chatcord
+# Edit .env and add your configuration:
+# - DATABASE_URL (optional for local - app works without it)
+# - Auth0 credentials (optional - see AUTH0_SETUP.md)
 ```
 
-4. **Run the application**
+4. **(Optional) Set up Auth0 authentication**
+```powershell
+# Quick setup with interactive script
+.\setup-auth0.ps1
+
+# Or follow the detailed guide
+# See AUTH0_SETUP.md for complete instructions
+```
+
+5. **Run the application**
 ```bash
 # Production mode
 npm start
@@ -82,7 +96,7 @@ npm start
 npm run dev
 ```
 
-5. **Open in browser**
+6. **Open in browser**
 ```
 http://localhost:3000
 ```
@@ -111,14 +125,17 @@ chatcord/
 │   └── js/
 │       └── main.js       # Client-side Socket.IO logic
 ├── utils/                # Server utilities
+│   ├── auth.js           # Auth0 authentication middleware
 │   ├── database.js       # PostgreSQL connection & queries
 │   ├── messages.js       # Message formatting
 │   └── users.js          # User management (in-memory)
 ├── server.js             # Main Express + Socket.IO server
 ├── schema.sql            # Database schema
 ├── render.yaml           # Render Blueprint (IaC)
+├── setup-auth0.ps1       # Auth0 setup helper script
 ├── package.json          # Node.js dependencies
 ├── .env.example          # Environment variables template
+├── AUTH0_SETUP.md        # Auth0 configuration guide
 ├── DEPLOY_GUIDE.md       # Detailed deployment guide
 └── README.md             # This file
 ```
@@ -130,8 +147,32 @@ chatcord/
 | `PORT` | Server port (default: 3000) | No |
 | `NODE_ENV` | Environment (`development` or `production`) | No |
 | `DATABASE_URL` | PostgreSQL connection string | No* |
+| `AUTH0_SECRET` | Random secret for Auth0 sessions (32+ chars) | No** |
+| `AUTH0_BASE_URL` | Your app URL (e.g., `http://localhost:3000`) | No** |
+| `AUTH0_CLIENT_ID` | Auth0 application client ID | No** |
+| `AUTH0_ISSUER_BASE_URL` | Auth0 domain (e.g., `https://dev-xxx.auth0.com`) | No** |
 
-\* The app works without `DATABASE_URL` but won't persist messages
+\* The app works without `DATABASE_URL` but won't persist messages  
+\** Auth0 variables are optional - app works without authentication
+
+## 🔐 Auth0 Setup
+
+For secure authentication with social login support:
+
+1. **Quick Setup** (Interactive):
+   ```powershell
+   .\setup-auth0.ps1
+   ```
+
+2. **Detailed Guide**:
+   See [AUTH0_SETUP.md](./AUTH0_SETUP.md) for complete step-by-step instructions
+
+3. **Features with Auth0**:
+   - Secure login/logout
+   - Social providers (Google, GitHub, etc.)
+   - User profiles with avatars
+   - Protected routes
+   - Auto-fill username from profile
 
 ## 📝 Notes
 
@@ -139,6 +180,7 @@ chatcord/
 - Messages are automatically cleaned up (keeps last 1000 per room)
 - Free tier Render PostgreSQL databases expire after 90 days
 - Free tier web services spin down after 15 minutes of inactivity
+- Auth0 free tier: 7,000 active users/month
 
 
 
