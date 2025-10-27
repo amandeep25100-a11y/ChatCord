@@ -1,5 +1,25 @@
 const { Pool } = require('pg');
 
+/**
+ * PostgreSQL Database Configuration for Render
+ * 
+ * RENDER SETUP:
+ * 1. Render automatically provides DATABASE_URL environment variable
+ * 2. Format: postgresql://user:password@host:port/database
+ * 3. SSL is automatically enabled in production (NODE_ENV=production)
+ * 
+ * LOCAL DEVELOPMENT:
+ * - App works without DATABASE_URL (graceful degradation)
+ * - To use local PostgreSQL, add to .env:
+ *   DATABASE_URL=postgresql://localhost:5432/chatcord
+ * 
+ * FEATURES:
+ * - Automatic table creation on startup
+ * - Message persistence with timestamp
+ * - Room-based message history
+ * - Optimized with database indexes
+ */
+
 // Render PostgreSQL connection
 // DATABASE_URL is automatically provided by Render when you add PostgreSQL
 let pool = null;
@@ -10,6 +30,9 @@ if (process.env.DATABASE_URL) {
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   });
+  
+  // Log connection status (helps with debugging)
+  console.log('📊 PostgreSQL connection pool created');
 }
 
 // Initialize database tables

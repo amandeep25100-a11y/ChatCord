@@ -24,6 +24,15 @@ const io = socketio(server);
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    database: process.env.DATABASE_URL ? 'connected' : 'not configured'
+  });
+});
+
 const botName = "ChatCord Bot";
 
 // Initialize database on startup

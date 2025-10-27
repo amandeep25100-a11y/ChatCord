@@ -1,0 +1,13 @@
+# Files to exclude from Render deployment
+_html_css/
+.git/
+.gitignore
+.env
+.env.example
+*.md
+!DEPLOY_GUIDE.md
+node_modules/
+.DS_Store
+*.log
+npm-debug.log*
+data/messages.json
