@@ -65,19 +65,19 @@ body {
 	            color var(--transition-smooth) var(--ease-in-out-smooth);
 }
 
-/* Cosmic space background with nebulae */
+/* Cosmic space background with HIGHLY VISIBLE nebulae */
 body::before {
 	content: '';
 	position: fixed;
 	inset: 0;
 	z-index: -10;
 	background: 
-		radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.5) 0%, transparent 50%),
-		radial-gradient(ellipse at 80% 60%, rgba(255, 0, 110, 0.45) 0%, transparent 50%),
-		radial-gradient(ellipse at 50% 80%, rgba(0, 255, 247, 0.35) 0%, transparent 50%),
-		radial-gradient(ellipse at 30% 70%, rgba(236, 72, 153, 0.5) 0%, transparent 40%),
-		radial-gradient(ellipse at 70% 20%, rgba(59, 130, 246, 0.45) 0%, transparent 45%),
-		radial-gradient(ellipse at 90% 50%, rgba(168, 85, 247, 0.4) 0%, transparent 40%),
+		radial-gradient(ellipse 800px 600px at 20% 30%, rgba(138, 43, 226, 0.7) 0%, rgba(138, 43, 226, 0.3) 30%, transparent 60%),
+		radial-gradient(ellipse 900px 700px at 80% 60%, rgba(255, 0, 110, 0.65) 0%, rgba(255, 0, 110, 0.25) 35%, transparent 65%),
+		radial-gradient(ellipse 850px 650px at 50% 80%, rgba(0, 255, 247, 0.6) 0%, rgba(0, 255, 247, 0.2) 32%, transparent 62%),
+		radial-gradient(ellipse 750px 600px at 30% 70%, rgba(236, 72, 153, 0.7) 0%, rgba(236, 72, 153, 0.28) 30%, transparent 58%),
+		radial-gradient(ellipse 800px 650px at 70% 20%, rgba(59, 130, 246, 0.65) 0%, rgba(59, 130, 246, 0.25) 33%, transparent 63%),
+		radial-gradient(ellipse 700px 550px at 90% 50%, rgba(168, 85, 247, 0.6) 0%, rgba(168, 85, 247, 0.22) 28%, transparent 55%),
 		linear-gradient(135deg, 
 			#0a0e27 0%, 
 			#1a1a2e 25%,
@@ -85,6 +85,7 @@ body::before {
 			#0f1419 75%,
 			#0a0e27 100%);
 	animation: nebula-drift 30s var(--ease-in-out-smooth) infinite alternate;
+	filter: blur(2px);
 }
 
 /* Galaxy spiral overlay */
@@ -94,10 +95,10 @@ body::before {
 	z-index: -9;
 	pointer-events: none;
 	background: 
-		radial-gradient(ellipse at 60% 40%, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0.1) 25%, transparent 40%),
-		radial-gradient(ellipse at 30% 70%, rgba(236, 72, 153, 0.25) 0%, rgba(236, 72, 153, 0.08) 30%, transparent 45%),
-		radial-gradient(ellipse at 80% 80%, rgba(0, 255, 247, 0.2) 0%, rgba(0, 255, 247, 0.05) 20%, transparent 35%),
-		radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+		radial-gradient(ellipse 700px 500px at 60% 40%, rgba(168, 85, 247, 0.4) 0%, rgba(168, 85, 247, 0.15) 30%, transparent 50%),
+		radial-gradient(ellipse 600px 450px at 30% 70%, rgba(236, 72, 153, 0.35) 0%, rgba(236, 72, 153, 0.12) 35%, transparent 55%),
+		radial-gradient(ellipse 650px 480px at 80% 80%, rgba(0, 255, 247, 0.3) 0%, rgba(0, 255, 247, 0.08) 25%, transparent 48%),
+		radial-gradient(circle 500px at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 60%);
 	animation: galaxy-rotate 60s linear infinite;
 	opacity: 0.8;
 }
@@ -369,17 +370,29 @@ body.dark::before {
 }
 
 @keyframes comet1 {
-	0% { opacity: 0; transform: translateX(0) translateY(0) rotate(-45deg); }
+	0% { 
+		opacity: 0; 
+		transform: translateX(0) translateY(0) rotate(0deg); 
+	}
 	5% { opacity: 1; }
 	95% { opacity: 0; }
-	100% { opacity: 0; transform: translateX(-800px) translateY(500px) rotate(-45deg); }
+	100% { 
+		opacity: 0; 
+		transform: translateX(-1000px) translateY(400px) rotate(0deg); 
+	}
 }
 
 @keyframes comet2 {
-	0% { opacity: 0; transform: translateX(0) translateY(0) rotate(-40deg); }
+	0% { 
+		opacity: 0; 
+		transform: translateX(0) translateY(0) rotate(0deg); 
+	}
 	5% { opacity: 1; }
 	95% { opacity: 0; }
-	100% { opacity: 0; transform: translateX(-900px) translateY(600px) rotate(-40deg); }
+	100% { 
+		opacity: 0; 
+		transform: translateX(-1100px) translateY(450px) rotate(0deg); 
+	}
 }
 
 /* Enhanced starfield animation */
@@ -504,10 +517,10 @@ a {
 
 /* Theme toggle button - Discord style */
 .theme-toggle {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	z-index: 9999;
+	position: fixed !important;
+	top: 20px !important;
+	right: 20px !important;
+	z-index: 99999;
 	width: 56px;
 	height: 56px;
 	padding: 0;
@@ -522,7 +535,6 @@ a {
 	border: 2px solid rgba(255, 255, 255, 0.2);
 	border-radius: 18px;
 	overflow: hidden;
-	position: relative;
 	box-shadow: 
 		0 8px 32px rgba(0, 0, 0, 0.25),
 		0 0 40px rgba(168, 85, 247, 0.2),
@@ -586,25 +598,25 @@ body.dark .btn {
 .chat-container {
 	max-width: 1200px;
 	background: linear-gradient(135deg, 
-		rgba(59, 130, 246, 0.08) 0%,
-		rgba(147, 51, 234, 0.06) 25%,
-		rgba(236, 72, 153, 0.08) 50%,
-		rgba(147, 51, 234, 0.06) 75%,
-		rgba(59, 130, 246, 0.08) 100%);
+		rgba(59, 130, 246, 0.03) 0%,
+		rgba(147, 51, 234, 0.02) 25%,
+		rgba(236, 72, 153, 0.03) 50%,
+		rgba(147, 51, 234, 0.02) 75%,
+		rgba(59, 130, 246, 0.03) 100%);
 	background-size: 200% 200%;
-	backdrop-filter: blur(28px) saturate(180%);
-	-webkit-backdrop-filter: blur(28px) saturate(180%);
+	backdrop-filter: blur(20px) saturate(150%);
+	-webkit-backdrop-filter: blur(20px) saturate(150%);
 	margin: 30px auto;
 	overflow: hidden;
 	border-radius: 24px;
-	border: 2px solid rgba(255, 255, 255, 0.18);
+	border: 1px solid rgba(255, 255, 255, 0.12);
 	position: relative;
 	box-shadow: 
-		0 12px 48px rgba(0, 0, 0, 0.25),
-		0 0 80px rgba(59, 130, 246, 0.2),
-		0 0 120px rgba(236, 72, 153, 0.1),
-		inset 0 2px 0 rgba(255, 255, 255, 0.15),
-		inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+		0 12px 48px rgba(0, 0, 0, 0.3),
+		0 0 80px rgba(59, 130, 246, 0.15),
+		0 0 120px rgba(236, 72, 153, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1),
+		inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 	transition: all var(--transition-smooth) var(--ease-in-out-smooth);
 	animation: gradient-shift 8s ease infinite, glow-pulse 4s var(--ease-in-out-smooth) infinite;
 }
@@ -1044,22 +1056,22 @@ body.dark .chat-form-container input[type='text']:focus {
 	margin: 80px auto;
 	color: #fff;
 	background: linear-gradient(135deg, 
-		rgba(59, 130, 246, 0.08) 0%,
-		rgba(147, 51, 234, 0.06) 25%,
-		rgba(236, 72, 153, 0.08) 50%,
-		rgba(147, 51, 234, 0.06) 75%,
-		rgba(59, 130, 246, 0.08) 100%);
+		rgba(59, 130, 246, 0.03) 0%,
+		rgba(147, 51, 234, 0.02) 25%,
+		rgba(236, 72, 153, 0.03) 50%,
+		rgba(147, 51, 234, 0.02) 75%,
+		rgba(59, 130, 246, 0.03) 100%);
 	background-size: 200% 200%;
-	backdrop-filter: blur(24px) saturate(180%);
-	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	backdrop-filter: blur(18px) saturate(140%);
+	-webkit-backdrop-filter: blur(18px) saturate(140%);
 	border-radius: 24px;
-	border: 2px solid rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.1);
 	overflow: hidden;
 	box-shadow: 
-		0 8px 32px rgba(0, 0, 0, 0.2),
-		0 0 60px rgba(236, 72, 153, 0.2),
-		0 0 100px rgba(59, 130, 246, 0.15),
-		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		0 8px 32px rgba(0, 0, 0, 0.3),
+		0 0 60px rgba(236, 72, 153, 0.12),
+		0 0 100px rgba(59, 130, 246, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.08);
 	position: relative;
 	animation: containerFadeIn 0.6s var(--ease-out-back), gradient-shift 6s ease infinite;
 }
