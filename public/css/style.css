@@ -1,0 +1,579 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+	--dark-color-a: #667aff;
+	--dark-color-b: #7386ff;
+	--light-color: #e6e9ff;
+	--success-color: #5cb85c;
+	--error-color: #d9534f;
+
+	/* Glassmorphism neon theme variables */
+	--neon-cyan: #00fff7;
+	--neon-pink: #ff006e;
+	--neon-purple: #a855f7;
+	--neon-blue: #3b82f6;
+	--neon-green: #10b981;
+	--neon-orange: #f97316;
+
+	/* Glass containers with vivid borders */
+	--glass-bg-light: rgba(255, 255, 255, 0.08);
+	--glass-bg-dark: rgba(15, 23, 42, 0.25);
+	--glass-border-light: rgba(255, 255, 255, 0.18);
+	--glass-border-dark: rgba(255, 255, 255, 0.1);
+
+	--transition-fast: 0.35s;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+	margin: 20px;
+	position: relative;
+	min-height: 100vh;
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+	transition: background var(--transition-fast) ease, color var(--transition-fast) ease;
+}
+
+/* Background layer via pseudo-element for gradient + blur */
+body::before{
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: -2;
+	transition: opacity var(--transition-fast) ease, background var(--transition-fast) ease;
+	filter: blur(6px) saturate(105%);
+	will-change: background, opacity;
+}
+
+/* Stars/animation overlay (visible in dark mode) */
+body::after{
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background-repeat: repeat;
+	opacity: 0;
+	transition: opacity 0.6s ease;
+}
+
+/* Light theme defaults */
+body:not(.dark)::before{
+	background: linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #8b5cf6 100%);
+}
+
+/* Dark theme backgrounds */
+body.dark::before{
+	background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #581c87 70%, #0f172a 100%);
+}
+
+/* Starfield using layered radial-gradients and animation */
+@keyframes twinkle {
+	0% {opacity: .15; transform: translateY(0);} 
+	50% {opacity: 1; transform: translateY(-2px);} 
+	100% {opacity: .15; transform: translateY(0);} 
+}
+
+body.dark::after{
+	background-image:
+		radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px),
+		radial-gradient(rgba(200,200,255,0.6) 1px, transparent 1px),
+		radial-gradient(rgba(180,255,255,0.5) 1px, transparent 1px);
+	background-size: 120px 120px, 80px 80px, 200px 200px;
+	animation: twinkle 4s linear infinite;
+	opacity: 0.9;
+}
+
+ul {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+.btn {
+	cursor: pointer;
+	padding: 10px 20px;
+	background: rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	color: #fff;
+	border: 1.5px solid rgba(255, 255, 255, 0.2);
+	font-size: 16px;
+	border-radius: 12px;
+	font-weight: 500;
+	transition: all var(--transition-fast) ease;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1),
+	            0 0 20px rgba(59, 130, 246, 0.15),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn:hover{ 
+	background: rgba(255, 255, 255, 0.1);
+	border-color: var(--neon-cyan);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+	            0 0 40px var(--neon-cyan),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+	transform: translateY(-2px);
+}
+
+/* Theme toggle button fixed top-right */
+.theme-toggle{
+	position: fixed;
+	top: 16px;
+	right: 16px;
+	z-index: 9999;
+	width: 52px;
+	height: 52px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 22px;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	color: #fff;
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+	            0 0 30px rgba(168, 85, 247, 0.3);
+}
+
+.theme-toggle:hover{
+	border-color: var(--neon-purple);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+	            0 0 50px var(--neon-purple);
+}
+
+/* Light-specific toggle look */
+body:not(.dark) .theme-toggle{ 
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(99, 102, 241, 0.3);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+	            0 0 30px rgba(99, 102, 241, 0.25);
+}
+
+/* Neon glows (theme sensitive) */
+body:not(.dark) .btn{ 
+	border-color: rgba(236, 72, 153, 0.3);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1),
+	            0 0 20px rgba(236, 72, 153, 0.2);
+}
+body.dark .btn{ 
+	border-color: rgba(59, 130, 246, 0.3);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15),
+	            0 0 20px rgba(59, 130, 246, 0.25);
+}
+
+/* Chat Page */
+
+.chat-container {
+	max-width: 1100px;
+	background: rgba(255, 255, 255, 0.06);
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	margin: 30px auto;
+	overflow: hidden;
+	border-radius: 24px;
+	border: 2px solid rgba(255, 255, 255, 0.15);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+	            0 0 60px rgba(59, 130, 246, 0.15),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	transition: all var(--transition-fast) ease;
+}
+
+body.dark .chat-container{
+	background: rgba(15, 23, 42, 0.3);
+	border-color: rgba(168, 85, 247, 0.25);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+	            0 0 80px rgba(168, 85, 247, 0.2),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.chat-header {
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	color: #fff;
+	padding: 20px 28px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+body:not(.dark) .chat-header{
+	border-bottom-color: rgba(236, 72, 153, 0.2);
+	box-shadow: 0 4px 20px rgba(236, 72, 153, 0.08);
+}
+
+body.dark .chat-header{
+	background: rgba(15, 23, 42, 0.4);
+	border-bottom-color: rgba(168, 85, 247, 0.2);
+	box-shadow: 0 4px 20px rgba(168, 85, 247, 0.1);
+}
+
+.chat-main {
+	display: grid;
+	grid-template-columns: 1fr 3fr;
+}
+
+.chat-sidebar {
+	background: rgba(255, 255, 255, 0.04);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	color: #fff;
+	padding: 24px 20px 60px;
+	overflow-y: scroll;
+	border-right: 1.5px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark .chat-sidebar{
+	background: rgba(15, 23, 42, 0.3);
+	border-right-color: rgba(168, 85, 247, 0.15);
+}
+
+.chat-sidebar h2 {
+	font-size: 20px;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	padding: 12px 14px;
+	margin-bottom: 20px;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+	            0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+body.dark .chat-sidebar h2{
+	border-color: rgba(16, 185, 129, 0.2);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
+	            0 0 25px rgba(16, 185, 129, 0.15);
+}
+
+.chat-sidebar h3 {
+	margin-bottom: 15px;
+}
+
+.chat-sidebar ul li {
+	padding: 10px 0;
+}
+
+.chat-messages {
+	padding: 30px;
+	max-height: 500px;
+	overflow-y: scroll;
+	transition: all var(--transition-fast);
+	background: rgba(255, 255, 255, 0.02);
+}
+
+body.dark .chat-messages{
+	background: rgba(0, 0, 0, 0.15);
+}
+
+.chat-messages .message {
+	padding: 14px 18px;
+	margin-bottom: 16px;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(16px) saturate(150%);
+	-webkit-backdrop-filter: blur(16px) saturate(150%);
+	border-radius: 16px;
+	overflow-wrap: break-word;
+	border: 1.5px solid rgba(255, 255, 255, 0.15);
+	transition: all var(--transition-fast) ease;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08),
+	            0 0 25px rgba(59, 130, 246, 0.08),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.chat-messages .message:hover{
+	transform: translateY(-2px);
+	border-color: var(--neon-cyan);
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12),
+	            0 0 40px var(--neon-cyan);
+}
+
+/* Neon effect on messages for light/dark */
+body:not(.dark) .chat-messages .message{
+	border-color: rgba(236, 72, 153, 0.2);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06),
+	            0 0 30px rgba(236, 72, 153, 0.12),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+body:not(.dark) .chat-messages .message:hover{
+	border-color: var(--neon-pink);
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.1),
+	            0 0 50px var(--neon-pink);
+}
+
+body.dark .chat-messages .message{
+	background: rgba(15, 23, 42, 0.35);
+	border-color: rgba(168, 85, 247, 0.2);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15),
+	            0 0 30px rgba(168, 85, 247, 0.12),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+body.dark .chat-messages .message:hover{
+	border-color: var(--neon-purple);
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2),
+	            0 0 50px var(--neon-purple);
+}
+
+.chat-messages .message .meta {
+	font-size: 14px;
+	font-weight: 700;
+	color: #fff;
+	opacity: 0.95;
+	margin-bottom: 7px;
+	text-shadow: 0 0 10px rgba(0, 255, 247, 0.4);
+}
+
+body:not(.dark) .chat-messages .message .meta{
+	text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+.chat-messages .message .meta span {
+	color: #777;
+}
+
+.chat-messages .message .text {
+	color: #fff;
+}
+
+body:not(.dark) .chat-messages .message .text{
+	color: #1f2937;
+}
+
+body.dark .chat-messages .message .text{
+	color: #7dd3fc;
+}
+
+.chat-form-container {
+	padding: 20px 30px;
+	background: rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-top: 1.5px solid rgba(255, 255, 255, 0.12);
+}
+
+body.dark .chat-form-container{
+	background: rgba(15, 23, 42, 0.4);
+	border-top-color: rgba(168, 85, 247, 0.2);
+}
+
+.chat-form-container form {
+	display: flex;
+}
+
+.chat-form-container input[type='text'] {
+	font-size: 16px;
+	padding: 12px 16px;
+	height: 48px;
+	flex: 1;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1.5px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	color: #fff;
+	outline: none;
+	transition: all var(--transition-fast) ease;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.chat-form-container input[type='text']::placeholder{
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.chat-form-container input[type='text']:focus{
+	border-color: var(--neon-cyan);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15),
+	            0 0 30px var(--neon-cyan),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+body.dark .chat-form-container input[type='text']{
+	background: rgba(15, 23, 42, 0.5);
+	border-color: rgba(168, 85, 247, 0.2);
+}
+
+body.dark .chat-form-container input[type='text']:focus{
+	border-color: var(--neon-purple);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
+	            0 0 35px var(--neon-purple);
+}
+
+/* Join Page */
+.join-container {
+	max-width: 500px;
+	margin: 80px auto;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.06);
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	border-radius: 24px;
+	border: 2px solid rgba(255, 255, 255, 0.15);
+	overflow: hidden;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+	            0 0 60px rgba(236, 72, 153, 0.15),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body.dark .join-container{
+	background: rgba(15, 23, 42, 0.3);
+	border-color: rgba(168, 85, 247, 0.25);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+	            0 0 80px rgba(168, 85, 247, 0.2),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.join-header {
+	text-align: center;
+	padding: 28px 20px;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+body:not(.dark) .join-header{
+	border-bottom-color: rgba(236, 72, 153, 0.2);
+}
+
+body.dark .join-header{
+	background: rgba(15, 23, 42, 0.4);
+	border-bottom-color: rgba(168, 85, 247, 0.2);
+}
+
+.join-main {
+	padding: 36px 40px;
+	background: rgba(255, 255, 255, 0.03);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+body.dark .join-main{
+	background: rgba(0, 0, 0, 0.2);
+}
+
+.join-main p {
+	margin-bottom: 20px;
+}
+
+.join-main .form-control {
+	margin-bottom: 20px;
+}
+
+.join-main label {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.join-main input[type='text'] {
+	font-size: 16px;
+	padding: 12px 16px;
+	height: 48px;
+	width: 100%;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1.5px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	color: #fff;
+	outline: none;
+	transition: all var(--transition-fast) ease;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.join-main input[type='text']::placeholder{
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.join-main input[type='text']:focus{
+	border-color: var(--neon-pink);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15),
+	            0 0 30px var(--neon-pink),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+body.dark .join-main input[type='text']{
+	background: rgba(15, 23, 42, 0.5);
+	border-color: rgba(168, 85, 247, 0.2);
+}
+
+body.dark .join-main input[type='text']:focus{
+	border-color: var(--neon-purple);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
+	            0 0 35px var(--neon-purple);
+}
+
+.join-main select {
+	font-size: 16px;
+	padding: 12px 16px;
+	height: 48px;
+	width: 100%;
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1.5px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	color: #fff;
+	outline: none;
+	transition: all var(--transition-fast) ease;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+	            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	cursor: pointer;
+}
+
+.join-main select option{
+	background: rgba(15, 23, 42, 0.95);
+	color: #fff;
+}
+
+.join-main select:focus{
+	border-color: var(--neon-pink);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15),
+	            0 0 30px var(--neon-pink);
+}
+
+body.dark .join-main select{
+	background: rgba(15, 23, 42, 0.5);
+	border-color: rgba(168, 85, 247, 0.2);
+}
+
+body.dark .join-main select:focus{
+	border-color: var(--neon-purple);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
+	            0 0 35px var(--neon-purple);
+}
+
+.join-main .btn {
+	margin-top: 20px;
+	width: 100%;
+}
+
+@media (max-width: 700px) {
+	.chat-main {
+		display: block;
+	}
+
+	.chat-sidebar {
+		display: none;
+	}
+}
