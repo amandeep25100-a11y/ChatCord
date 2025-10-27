@@ -72,11 +72,12 @@ body::before {
 	inset: 0;
 	z-index: -10;
 	background: 
-		radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.3) 0%, transparent 50%),
-		radial-gradient(ellipse at 80% 60%, rgba(255, 0, 110, 0.25) 0%, transparent 50%),
-		radial-gradient(ellipse at 50% 80%, rgba(0, 255, 247, 0.2) 0%, transparent 50%),
-		radial-gradient(ellipse at 30% 70%, rgba(236, 72, 153, 0.3) 0%, transparent 40%),
-		radial-gradient(ellipse at 70% 20%, rgba(59, 130, 246, 0.25) 0%, transparent 45%),
+		radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.5) 0%, transparent 50%),
+		radial-gradient(ellipse at 80% 60%, rgba(255, 0, 110, 0.45) 0%, transparent 50%),
+		radial-gradient(ellipse at 50% 80%, rgba(0, 255, 247, 0.35) 0%, transparent 50%),
+		radial-gradient(ellipse at 30% 70%, rgba(236, 72, 153, 0.5) 0%, transparent 40%),
+		radial-gradient(ellipse at 70% 20%, rgba(59, 130, 246, 0.45) 0%, transparent 45%),
+		radial-gradient(ellipse at 90% 50%, rgba(168, 85, 247, 0.4) 0%, transparent 40%),
 		linear-gradient(135deg, 
 			#0a0e27 0%, 
 			#1a1a2e 25%,
@@ -93,11 +94,12 @@ body::before {
 	z-index: -9;
 	pointer-events: none;
 	background: 
-		radial-gradient(circle at 60% 40%, rgba(168, 85, 247, 0.15) 0%, transparent 30%),
-		radial-gradient(circle at 30% 70%, rgba(236, 72, 153, 0.12) 0%, transparent 35%),
-		radial-gradient(circle at 80% 80%, rgba(0, 255, 247, 0.08) 0%, transparent 25%);
+		radial-gradient(ellipse at 60% 40%, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0.1) 25%, transparent 40%),
+		radial-gradient(ellipse at 30% 70%, rgba(236, 72, 153, 0.25) 0%, rgba(236, 72, 153, 0.08) 30%, transparent 45%),
+		radial-gradient(ellipse at 80% 80%, rgba(0, 255, 247, 0.2) 0%, rgba(0, 255, 247, 0.05) 20%, transparent 35%),
+		radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
 	animation: galaxy-rotate 60s linear infinite;
-	opacity: 0.6;
+	opacity: 0.8;
 }
 
 /* Distant stars layer */
@@ -154,41 +156,6 @@ body::before {
 	animation: stars-twinkle 3s var(--ease-in-out-smooth) infinite alternate;
 }
 
-/* Moon */
-.moon {
-	position: fixed;
-	top: 8%;
-	right: 10%;
-	width: 120px;
-	height: 120px;
-	z-index: -5;
-	pointer-events: none;
-	background: 
-		radial-gradient(circle at 35% 35%, #fff9e6 0%, #ffe6b3 40%, #ffcc80 100%);
-	border-radius: 50%;
-	box-shadow: 
-		0 0 60px rgba(255, 255, 200, 0.6),
-		0 0 120px rgba(255, 255, 200, 0.3),
-		inset -20px -20px 50px rgba(0, 0, 0, 0.15);
-	animation: moon-glow 4s var(--ease-in-out-smooth) infinite alternate;
-}
-
-/* Moon craters */
-.moon::before {
-	content: '';
-	position: absolute;
-	top: 30%;
-	left: 25%;
-	width: 20px;
-	height: 20px;
-	background: rgba(0, 0, 0, 0.08);
-	border-radius: 50%;
-	box-shadow: 
-		25px -10px 0 8px rgba(0, 0, 0, 0.06),
-		-5px 20px 0 6px rgba(0, 0, 0, 0.07),
-		35px 15px 0 5px rgba(0, 0, 0, 0.05);
-}
-
 /* Dark clouds */
 .clouds {
 	position: fixed;
@@ -206,11 +173,13 @@ body::before {
 /* Shooting stars */
 .shooting-star {
 	position: fixed;
-	width: 2px;
-	height: 2px;
+	width: 3px;
+	height: 3px;
 	background: #fff;
 	border-radius: 50%;
-	box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.8);
+	box-shadow: 
+		0 0 8px 4px rgba(255, 255, 255, 1),
+		0 0 16px 8px rgba(255, 255, 255, 0.6);
 	z-index: -5;
 	pointer-events: none;
 	opacity: 0;
@@ -221,27 +190,28 @@ body::before {
 	position: absolute;
 	top: 50%;
 	right: 100%;
-	height: 1px;
-	width: 100px;
-	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8));
+	height: 2px;
+	width: 150px;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.3));
 	transform: translateY(-50%);
+	box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
 }
 
-.shooting-star:nth-child(1) {
+.shooting-star:nth-child(7) {
 	top: 20%;
 	right: 20%;
 	animation: shooting1 3s ease-in-out infinite;
 	animation-delay: 1s;
 }
 
-.shooting-star:nth-child(2) {
+.shooting-star:nth-child(8) {
 	top: 50%;
 	right: 60%;
 	animation: shooting2 4s ease-in-out infinite;
 	animation-delay: 4s;
 }
 
-.shooting-star:nth-child(3) {
+.shooting-star:nth-child(9) {
 	top: 70%;
 	right: 30%;
 	animation: shooting3 3.5s ease-in-out infinite;
@@ -251,14 +221,16 @@ body::before {
 /* Comets */
 .comet {
 	position: fixed;
-	width: 4px;
-	height: 4px;
-	background: radial-gradient(circle, #4dd0e1 0%, transparent 70%);
+	width: 6px;
+	height: 6px;
+	background: radial-gradient(circle, #4dd0e1 0%, #00fff7 50%, transparent 80%);
 	border-radius: 50%;
 	z-index: -5;
 	pointer-events: none;
 	opacity: 0;
-	box-shadow: 0 0 8px 3px rgba(77, 208, 225, 0.6);
+	box-shadow: 
+		0 0 16px 8px rgba(77, 208, 225, 0.9),
+		0 0 32px 16px rgba(0, 255, 247, 0.6);
 }
 
 .comet::before {
@@ -266,24 +238,44 @@ body::before {
 	position: absolute;
 	top: 50%;
 	right: 100%;
-	height: 2px;
-	width: 150px;
-	background: linear-gradient(90deg, transparent, rgba(77, 208, 225, 0.9), rgba(0, 255, 247, 0.6));
+	height: 3px;
+	width: 200px;
+	background: linear-gradient(90deg, 
+		transparent, 
+		rgba(77, 208, 225, 0.9) 20%, 
+		rgba(0, 255, 247, 0.8) 50%, 
+		rgba(0, 255, 247, 0.4));
 	transform: translateY(-50%);
 	filter: blur(1px);
+	box-shadow: 0 0 12px rgba(0, 255, 247, 0.8);
 }
 
-.comet:nth-child(1) {
+.comet:nth-child(10) {
 	top: 15%;
 	right: 80%;
 	animation: comet1 8s ease-in-out infinite;
 }
 
-.comet:nth-child(2) {
+.comet:nth-child(11) {
 	top: 60%;
 	right: 50%;
 	animation: comet2 10s ease-in-out infinite;
 	animation-delay: 3s;
+}
+
+/* Dark clouds */
+/* Dark clouds */
+.clouds {
+	position: fixed;
+	inset: 0;
+	z-index: -4;
+	pointer-events: none;
+	background-image: 
+		radial-gradient(ellipse at 10% 20%, rgba(20, 20, 40, 0.5) 0%, transparent 40%),
+		radial-gradient(ellipse at 70% 10%, rgba(30, 30, 50, 0.45) 0%, transparent 45%),
+		radial-gradient(ellipse at 40% 60%, rgba(15, 15, 35, 0.4) 0%, transparent 50%),
+		radial-gradient(ellipse at 85% 75%, rgba(25, 25, 45, 0.45) 0%, transparent 40%);
+	animation: clouds-drift 90s linear infinite;
 }
 
 /* Frosted texture overlay */
@@ -348,21 +340,6 @@ body.dark::before {
 @keyframes stars-twinkle {
 	0% { opacity: 0.4; }
 	100% { opacity: 0.8; }
-}
-
-@keyframes moon-glow {
-	0% { 
-		box-shadow: 
-			0 0 60px rgba(255, 255, 200, 0.5),
-			0 0 120px rgba(255, 255, 200, 0.25),
-			inset -20px -20px 50px rgba(0, 0, 0, 0.15);
-	}
-	100% { 
-		box-shadow: 
-			0 0 80px rgba(255, 255, 200, 0.7),
-			0 0 150px rgba(255, 255, 200, 0.4),
-			inset -20px -20px 50px rgba(0, 0, 0, 0.15);
-	}
 }
 
 @keyframes clouds-drift {
