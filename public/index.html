@@ -55,7 +55,26 @@
 		</style>
 	</head>
 	<body>
-		<!-- Cosmic space background layers -->
+			</style>
+</head>
+<body>
+	<!-- Loading Screen -->
+	<div class="loading-screen">
+		<div class="loading-logo">
+			<div class="logo-circles">
+				<div class="logo-circle"></div>
+				<div class="logo-circle"></div>
+				<div class="logo-circle"></div>
+			</div>
+			<i class="fas fa-smile logo-icon"></i>
+		</div>
+		<div class="loading-text">Welcome to ChatCord...</div>
+		<div class="loading-bar-container">
+			<div class="loading-bar"></div>
+		</div>
+	</div>
+
+	<!-- Cosmic space background layers -->
 		<div class="space-layer"></div>
 		<div class="stars-distant"></div>
 		<div class="stars-mid"></div>
@@ -111,27 +130,16 @@
 					</div>
 				</div>
 
-				<!-- Chat Form -->
-				<form action="chat.html" id="chat-form">
-					<div class="form-control">
-						<label for="username">Username</label>
-						<input type="text" name="username" id="username" placeholder="Enter username..." required />
-					</div>
-					<div class="form-control">
-						<label for="room">Room</label>
-						<select name="room" id="room">
-							<option value="JavaScript">JavaScript</option>
-							<option value="Python">Python</option>
-							<option value="PHP">PHP</option>
-							<option value="C#">C#</option>
-							<option value="Ruby">Ruby</option>
-							<option value="Java">Java</option>
-						</select>
-					</div>
-					<button type="submit" class="btn">Join Chat</button>
-				</form>
-
-				<script>
+			<!-- Chat Form -->
+			<form id="chat-form">
+				<div class="form-control">
+					<label for="username">Username</label>
+					<input type="text" name="username" id="username" placeholder="Enter username..." required />
+				</div>
+				<button type="submit" class="btn">
+					<i class="fas fa-door-open"></i> Select Chat Room
+				</button>
+			</form>				<script>
 				// Check authentication status
 				async function checkAuth() {
 					try {
@@ -168,9 +176,38 @@
 					}
 				}
 
-				function skipAuth() {
-					document.getElementById('auth-section').style.display = 'none';
-				}
+			function skipAuth() {
+				document.getElementById('auth-section').style.display = 'none';
+			}
+
+			// Hide loading screen after page loads
+			window.addEventListener('load', () => {
+				setTimeout(() => {
+					document.querySelector('.loading-screen').classList.add('hidden');
+				}, 1500);
+			});
+
+			// Handle form submission - redirect to rooms page
+			document.getElementById('chat-form').addEventListener('submit', function(e) {
+				e.preventDefault();
+				const username = document.getElementById('username').value.trim();
+				if (username) {
+					// Show loading screen
+					const loadingScreen = document.querySelector('.loading-screen');
+					loadingScreen.classList.remove('hidden');
+					document.querySelector('.loading-text').textContent = 'Loading Rooms...';
+					
+					// Save username to localStorage
+					try {
+						localStorage.setItem('chatcordUser', username);
+					} catch (e) {}
+					
+					// Redirect to rooms page with username after animation
+					setTimeout(() => {
+						window.location.href = `rooms.html?username=${encodeURIComponent(username)}`;
+					}, 1200);
+					}
+				});
 
 				// Load authentication status
 				checkAuth();

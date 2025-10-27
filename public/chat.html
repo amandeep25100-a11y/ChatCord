@@ -13,6 +13,22 @@
     <title>ChatCord App</title>
   </head>
   <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+      <div class="loading-logo">
+        <div class="logo-circles">
+          <div class="logo-circle"></div>
+          <div class="logo-circle"></div>
+          <div class="logo-circle"></div>
+        </div>
+        <i class="fas fa-comments logo-icon"></i>
+      </div>
+      <div class="loading-text">Connecting to chat...</div>
+      <div class="loading-bar-container">
+        <div class="loading-bar"></div>
+      </div>
+    </div>
+
     <!-- Cosmic space background layers -->
     <div class="space-layer"></div>
     <div class="stars-distant"></div>
@@ -63,5 +79,13 @@
     ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/main.js"></script>
+    <script>
+      // Hide loading screen after page and socket connection loads
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          document.querySelector('.loading-screen').classList.add('hidden');
+        }, 1500);
+      });
+    </script>
   </body>
 </html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link
+		rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+		integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+		crossorigin="anonymous"
+	/>
+	<link rel="stylesheet" href="css/style.css" />
+	<title>Select a Chat Room - ChatCord</title>
+</head>
+<body>
+	<!-- Loading Screen -->
+	<div class="loading-screen">
+		<div class="loading-logo">
+			<div class="logo-circles">
+				<div class="logo-circle"></div>
+				<div class="logo-circle"></div>
+				<div class="logo-circle"></div>
+			</div>
+			<i class="fas fa-door-open logo-icon"></i>
+		</div>
+		<div class="loading-text">Loading Rooms...</div>
+		<div class="loading-bar-container">
+			<div class="loading-bar"></div>
+		</div>
+	</div>
+
+	<!-- Cosmic space background layers -->
+	<div class="space-layer"></div>
+	<div class="stars-distant"></div>
+	<div class="stars-mid"></div>
+	<div class="stars-close"></div>
+	<div class="clouds"></div>
+	<div class="shooting-star"></div>
+	<div class="shooting-star"></div>
+	<div class="shooting-star"></div>
+	<div class="comet"></div>
+	<div class="comet"></div>
+	
+	<!-- Theme toggle button -->
+	<button id="theme-toggle" class="btn theme-toggle" aria-label="Toggle theme">🌗</button>
+
+	<div class="rooms-container">
+		<header class="rooms-header">
+			<h1><i class="fas fa-door-open"></i> Select a Chat Room</h1>
+			<p>Choose your study space and start collaborating</p>
+		</header>
+
+		<div class="rooms-grid">
+			<!-- JavaScript Room -->
+			<div class="room-card" data-room="JavaScript">
+				<div class="room-icon javascript">
+					<i class="fab fa-js-square"></i>
+				</div>
+				<div class="room-info">
+					<h3>JavaScript</h3>
+					<p>Discuss JS, React, Node.js, and web development</p>
+					<div class="room-stats">
+						<span><i class="fas fa-users"></i> <span class="user-count">0</span> online</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Python Room -->
+			<div class="room-card" data-room="Python">
+				<div class="room-icon python">
+					<i class="fab fa-python"></i>
+				</div>
+				<div class="room-info">
+					<h3>Python</h3>
+					<p>ML, Data Science, Django, Flask and more</p>
+					<div class="room-stats">
+						<span><i class="fas fa-users"></i> <span class="user-count">0</span> online</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Java Room -->
+			<div class="room-card" data-room="Java">
+				<div class="room-icon java">
+					<i class="fab fa-java"></i>
+				</div>
+				<div class="room-info">
+					<h3>Java</h3>
+					<p>Spring Boot, Android, Enterprise apps</p>
+					<div class="room-stats">
+						<span><i class="fas fa-users"></i> <span class="user-count">0</span> online</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- PHP Room -->
+			<div class="room-card" data-room="PHP">
+				<div class="room-icon php">
+					<i class="fab fa-php"></i>
+				</div>
+				<div class="room-info">
+					<h3>PHP</h3>
+					<p>Laravel, WordPress, backend development</p>
+					<div class="room-stats">
+						<span><i class="fas fa-users"></i> <span class="user-count">0</span> online</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- C# Room -->
+			<div class="room-card" data-room="C#">
+				<div class="room-icon csharp">
+					<i class="fas fa-hashtag"></i>
+				</div>
+				<div class="room-info">
+					<h3>C#</h3>
+					<p>.NET, Unity, game development, desktop apps</p>
+					<div class="room-stats">
+						<span><i class="fas fa-users"></i> <span class="user-count">0</span> online</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Ruby Room -->
+			<div class="room-card" data-room="Ruby">
+				<div class="room-icon ruby">
+					<i class="far fa-gem"></i>
+				</div>
+				<div class="room-info">
+					<h3>Ruby</h3>
+					<p>Rails, scripting, web frameworks</p>
+					<div class="room-stats">
+						<span><i class="fas fa-users"></i> <span class="user-count">0</span> online</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="back-button-container">
+			<a href="index.html" class="btn btn-secondary">
+				<i class="fas fa-arrow-left"></i> Back to Login
+			</a>
+		</div>
+	</div>
+
+	<script>
+		// Hide loading screen after content loads
+		window.addEventListener('load', () => {
+			setTimeout(() => {
+				document.querySelector('.loading-screen').classList.add('hidden');
+			}, 1500);
+		});
+
+		// Get username from URL params
+		const urlParams = new URLSearchParams(window.location.search);
+		const username = urlParams.get('username');
+
+		// If no username, redirect to index
+		if (!username) {
+			window.location.href = 'index.html';
+		}
+
+		// Room card click handler
+		document.querySelectorAll('.room-card').forEach(card => {
+			card.addEventListener('click', function() {
+				const room = this.getAttribute('data-room');
+				
+				// Show loading screen
+				const loadingScreen = document.querySelector('.loading-screen');
+				loadingScreen.classList.remove('hidden');
+				document.querySelector('.loading-text').textContent = `Joining ${room}...`;
+				
+				// Redirect after animation
+				setTimeout(() => {
+					window.location.href = `chat.html?username=${encodeURIComponent(username)}&room=${encodeURIComponent(room)}`;
+				}, 1200);
+			});
+
+			// Add hover sound effect (optional)
+			card.addEventListener('mouseenter', function() {
+				this.style.transform = 'translateY(-8px) scale(1.02)';
+			});
+
+			card.addEventListener('mouseleave', function() {
+				this.style.transform = 'translateY(0) scale(1)';
+			});
+		});
+
+		// Theme toggle functionality
+		const themeToggle = document.getElementById('theme-toggle');
+		const body = document.body;
+		
+		// Check for saved theme preference
+		const savedTheme = localStorage.getItem('theme');
+		if (savedTheme === 'light') {
+			body.classList.remove('dark');
+		} else {
+			body.classList.add('dark');
+		}
+		
+		themeToggle.addEventListener('click', () => {
+			body.classList.toggle('dark');
+			const theme = body.classList.contains('dark') ? 'dark' : 'light';
+			localStorage.setItem('theme', theme);
+		});
+
+		// Simulate user counts (in real app, get from server via Socket.io)
+		function updateUserCounts() {
+			document.querySelectorAll('.user-count').forEach((el, index) => {
+				// Random counts for demo (replace with real data from server)
+				el.textContent = Math.floor(Math.random() * 15) + 1;
+			});
+		}
+
+		updateUserCounts();
+		setInterval(updateUserCounts, 10000); // Update every 10 seconds
+	</script>
+</body>
+</html>

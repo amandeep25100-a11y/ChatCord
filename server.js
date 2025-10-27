@@ -25,6 +25,13 @@ const {
   getRoomUsers,
 } = require("./utils/users");
 
+// Superuser configuration - add your username here
+const SUPERUSERS = (process.env.SUPERUSERS || 'admin').split(',');
+
+// Store message reactions in memory (in production, use database)
+const messageReactions = new Map();
+const messageIds = new Map(); // Track message IDs
+
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -132,14 +139,25 @@ io.on("connection", (socket) => {
   
   socket.on("joinRoom", async ({ username, room }) => {
     const user = userJoin(socket.id, username, room);
+    const isSuperuser = SUPERUSERS.includes(username);
 
     socket.join(user.room);
+    
+    // Send superuser status to client
+    socket.emit("superuserStatus", { isSuperuser });
 
     // Load and send message history from PostgreSQL
     try {
       const history = await getRoomMessages(user.room, 100);
       if (history.length > 0) {
-        socket.emit("messageHistory", history);
+        // Add IDs and superuser status to historical messages
+        const enrichedHistory = history.map(msg => ({
+          ...msg,
+          id: msg.message_id || `history-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          isSuperuser: SUPERUSERS.includes(msg.username),
+          reactions: {}
+        }));
+        socket.emit("messageHistory", enrichedHistory);
       }
     } catch (error) {
       console.error('Error loading message history:', error);
@@ -147,14 +165,20 @@ io.on("connection", (socket) => {
 
     // Welcome current user
     const welcomeMsg = formatMessage(botName, "Welcome to ChatCord!");
+    welcomeMsg.id = `welcome-${socket.id}-${Date.now()}`;
+    welcomeMsg.isSuperuser = false;
+    welcomeMsg.reactions = {};
     socket.emit("message", welcomeMsg);
 
     // Broadcast when a user connects
     const joinMsg = formatMessage(botName, `${user.username} has joined the chat`);
+    joinMsg.id = `join-${socket.id}-${Date.now()}`;
+    joinMsg.isSuperuser = false;
+    joinMsg.reactions = {};
     socket.broadcast.to(user.room).emit("message", joinMsg);
     
     // Save join message to PostgreSQL
-    await saveMessage(user.room, botName, `${user.username} has joined the chat`, null, 'system', joinMsg.time);
+    await saveMessage(user.room, botName, `${user.username} has joined the chat`, joinMsg.id, 'system', joinMsg.time);
 
     // Send users and room info
     io.to(user.room).emit("roomUsers", {
@@ -166,15 +190,76 @@ io.on("connection", (socket) => {
   // Listen for chatMessage
   socket.on("chatMessage", async (msg) => {
     const user = getCurrentUser(socket.id);
-
+    const messageId = `${user.room}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     const message = formatMessage(user.username, msg);
+    message.id = messageId;
+    message.isSuperuser = SUPERUSERS.includes(user.username);
+    message.reactions = {};
+    
+    // Store message ID for tracking
+    messageIds.set(messageId, { room: user.room, username: user.username, text: msg, time: message.time });
+    
     io.to(user.room).emit("message", message);
     
     // Save message to PostgreSQL
-    await saveMessage(user.room, user.username, msg, null, 'text', message.time);
+    await saveMessage(user.room, user.username, msg, messageId, 'text', message.time);
     
     // Optional: Clean old messages periodically (keep last 1000)
     // await cleanOldMessages(user.room, 1000);
+  });
+
+  // Handle emoji reactions
+  socket.on("addReaction", ({ messageId, emoji, username }) => {
+    const messageData = messageIds.get(messageId);
+    if (!messageData) return;
+    
+    // Get or create reactions for this message
+    if (!messageReactions.has(messageId)) {
+      messageReactions.set(messageId, {});
+    }
+    
+    const reactions = messageReactions.get(messageId);
+    
+    // Toggle reaction
+    if (!reactions[emoji]) {
+      reactions[emoji] = [];
+    }
+    
+    const userIndex = reactions[emoji].indexOf(username);
+    if (userIndex > -1) {
+      // Remove reaction
+      reactions[emoji].splice(userIndex, 1);
+      if (reactions[emoji].length === 0) {
+        delete reactions[emoji];
+      }
+    } else {
+      // Add reaction
+      reactions[emoji].push(username);
+    }
+    
+    // Broadcast the reaction update to the room
+    io.to(messageData.room).emit("emojiReaction", { messageId, emoji, username });
+  });
+
+  // Handle message deletion
+  socket.on("deleteMessage", ({ messageId }) => {
+    const user = getCurrentUser(socket.id);
+    const messageData = messageIds.get(messageId);
+    
+    if (!messageData) return;
+    
+    // Check if user is authorized to delete (superuser or message owner)
+    if (SUPERUSERS.includes(user.username) || messageData.username === user.username) {
+      // Remove from tracking
+      messageIds.delete(messageId);
+      messageReactions.delete(messageId);
+      
+      // Broadcast deletion to room
+      io.to(messageData.room).emit("messageDeleted", { messageId });
+      
+      console.log(`Message ${messageId} deleted by ${user.username}`);
+    }
   });
 
   // Runs when client disconnects
@@ -183,10 +268,13 @@ io.on("connection", (socket) => {
 
     if (user) {
       const leaveMsg = formatMessage(botName, `${user.username} has left the chat`);
+      leaveMsg.id = `leave-${socket.id}-${Date.now()}`;
+      leaveMsg.isSuperuser = false;
+      leaveMsg.reactions = {};
       io.to(user.room).emit("message", leaveMsg);
       
       // Save leave message to PostgreSQL
-      await saveMessage(user.room, botName, `${user.username} has left the chat`, null, 'system', leaveMsg.time);
+      await saveMessage(user.room, botName, `${user.username} has left the chat`, leaveMsg.id, 'system', leaveMsg.time);
 
       // Send users and room info
       io.to(user.room).emit("roomUsers", {
