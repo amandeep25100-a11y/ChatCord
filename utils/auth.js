@@ -34,7 +34,7 @@ function getAuth0Config() {
         path: '/',
         transient: false,
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'Lax',
         secure: process.env.NODE_ENV === 'production'
       },
       name: 'chatcord_session',
