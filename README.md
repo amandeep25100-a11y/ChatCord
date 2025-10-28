@@ -20,6 +20,11 @@ A modern real-time chat application with persistent message history, featuring a
 - 📱 **Responsive design** for mobile and desktop
 - 🚀 **Ready for image uploads** (infrastructure in place)
 - ✨ **Works with or without Auth0** - graceful degradation
+- 🤖 **AI-powered content moderation** - Automatically filters messages to keep conversations study-focused
+- 🚩 **Smart message flagging** - Questionable content flagged for admin review
+- 🛡️ **Admin moderation panel** - Review and manage flagged messages
+- 😊 **Emoji reactions** - React to messages with emoji
+- 🗑️ **Message deletion** - Users can delete their own messages, admins can delete any message
 
 ## 🚀 Quick Deploy to Render
 
@@ -526,6 +531,75 @@ git commit -m "Update feature"└── firebase.json       # Firebase config (o
 
 git push```
 
+```
+
+Render automatically rebuilds and redeploys! 🎉
+
+## 🤖 AI Content Moderation
+
+ChatCord includes an intelligent AI-powered content moderation system to keep conversations study-focused and appropriate.
+
+### How It Works
+
+The moderation system uses a **three-tier approach**:
+
+1. **🟢 Approved**: Study-related messages pass through immediately
+2. **🟡 Flagged**: Potentially off-topic messages are allowed but flagged for admin review
+3. **🔴 Blocked**: Inappropriate content (hate speech, spam) is blocked immediately
+
+### AI Integration (Optional)
+
+ChatCord can use **OpenAI GPT-3.5-turbo** for intelligent content analysis:
+
+```bash
+# Add to your .env file
+OPENAI_API_KEY=sk-your-openai-api-key-here
+```
+
+**Without OpenAI API key**: The system automatically falls back to keyword-based moderation (works great for most cases!)
+
+### Moderation Features
+
+- ✅ **Study-focused filtering**: Keeps conversations educational
+- ✅ **Profanity detection**: Blocks inappropriate language
+- ✅ **Spam prevention**: Detects excessive caps, repeated characters
+- ✅ **Smart flagging**: Borderline content goes to admin review
+- ✅ **Confidence scores**: Each decision includes confidence level (0-100%)
+- ✅ **Admin dashboard**: Review flagged messages at `/admin.html`
+
+### Admin Panel
+
+Superusers can access the moderation dashboard:
+
+1. Navigate to `/admin.html`
+2. View all pending, approved, and rejected messages
+3. Approve or reject flagged content
+4. Track moderation statistics
+
+**Set superusers in `.env`:**
+```bash
+SUPERUSERS=admin,superuser,your-username
+```
+
+### Moderation Logic
+
+**Keywords checked:**
+- **Study topics**: homework, study, exam, assignment, class, etc.
+- **Off-topic**: politics, religion, dating, gaming, etc.
+- **Spam patterns**: Multiple links, excessive punctuation, ALL CAPS
+
+**Example moderations:**
+- ✅ "Can anyone help with my math homework?" → Approved
+- 🟡 "What's everyone's favorite movie?" → Flagged (off-topic)
+- 🔴 "Check out this spam link!!!" → Blocked
+
+### Disabling Moderation
+
+To disable AI moderation, remove the moderation logic from `server.js` or set all messages to auto-approve:
+
+```javascript
+// In server.js, replace moderation with:
+const moderationResult = { allowed: true, flagged: false, blocked: false };
 ```
 
 ## Notes

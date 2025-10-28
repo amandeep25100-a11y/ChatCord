@@ -2075,3 +2075,117 @@ body.dark .room-stats {
 		display: none;
 	}
 }
+
+/* Flagged Message Styling (AI Moderation) */
+.flagged-message {
+	border-left: 3px solid #fbbf24;
+	background: linear-gradient(
+		90deg,
+		rgba(251, 191, 36, 0.1) 0%,
+		rgba(251, 191, 36, 0.05) 20%,
+		transparent 100%
+	);
+	position: relative;
+}
+
+.flagged-message::before {
+	content: '🚩';
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	font-size: 16px;
+	opacity: 0.7;
+}
+
+.flagged-message .meta {
+	color: #fbbf24;
+}
+
+/* Notification System */
+.notification {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	max-width: 400px;
+	padding: 16px 20px;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(20px);
+	border: 1.5px solid rgba(255, 255, 255, 0.2);
+	border-radius: 12px;
+	z-index: 10000;
+	opacity: 0;
+	transform: translateX(400px);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.notification.show {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.notification-content {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	color: white;
+}
+
+.notification-content i {
+	font-size: 20px;
+}
+
+.notification-error {
+	border-left: 4px solid #ef4444;
+	background: linear-gradient(
+		90deg,
+		rgba(239, 68, 68, 0.2) 0%,
+		rgba(239, 68, 68, 0.1) 50%,
+		rgba(255, 255, 255, 0.1) 100%
+	);
+}
+
+.notification-error .notification-content i {
+	color: #ef4444;
+}
+
+.notification-info {
+	border-left: 4px solid #3b82f6;
+	background: linear-gradient(
+		90deg,
+		rgba(59, 130, 246, 0.2) 0%,
+		rgba(59, 130, 246, 0.1) 50%,
+		rgba(255, 255, 255, 0.1) 100%
+	);
+}
+
+.notification-info .notification-content i {
+	color: #3b82f6;
+}
+
+.notification-success {
+	border-left: 4px solid #10b981;
+	background: linear-gradient(
+		90deg,
+		rgba(16, 185, 129, 0.2) 0%,
+		rgba(16, 185, 129, 0.1) 50%,
+		rgba(255, 255, 255, 0.1) 100%
+	);
+}
+
+.notification-success .notification-content i {
+	color: #10b981;
+}
+
+@media (max-width: 768px) {
+	.notification {
+		right: 10px;
+		left: 10px;
+		max-width: none;
+		transform: translateY(-100px);
+	}
+	
+	.notification.show {
+		transform: translateY(0);
+	}
+}

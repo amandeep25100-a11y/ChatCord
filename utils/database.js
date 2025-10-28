@@ -68,6 +68,34 @@ async function initDatabase() {
       CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp DESC);
     `);
 
+    // Create flagged messages table for admin review
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS flagged_messages (
+        id SERIAL PRIMARY KEY,
+        message_id VARCHAR(255) UNIQUE NOT NULL,
+        room VARCHAR(255) NOT NULL,
+        username VARCHAR(255) NOT NULL,
+        message_text TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        confidence DECIMAL(3,2),
+        moderation_type VARCHAR(50),
+        status VARCHAR(50) DEFAULT 'pending',
+        reviewed_by VARCHAR(255),
+        reviewed_at TIMESTAMP,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create index on status for filtering
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_flagged_status ON flagged_messages(status);
+    `);
+
+    // Create index on room
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_flagged_room ON flagged_messages(room);
+    `);
+
     console.log('✅ Database tables initialized');
   } catch (error) {
     console.error('❌ Database initialization error:', error);
@@ -125,10 +153,83 @@ async function cleanOldMessages(room, keepCount = 1000) {
   }
 }
 
+// Save flagged message for admin review
+async function saveFlaggedMessage(messageId, room, username, text, reason, confidence, moderationType) {
+  if (!pool) return; // No database, skip saving
+  
+  try {
+    await pool.query(
+      `INSERT INTO flagged_messages 
+       (message_id, room, username, message_text, reason, confidence, moderation_type, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
+       ON CONFLICT (message_id) DO NOTHING`,
+      [messageId, room, username, text, reason, confidence, moderationType]
+    );
+    console.log(`🚩 Flagged message ${messageId} saved for review`);
+  } catch (error) {
+    console.error('Error saving flagged message:', error);
+  }
+}
+
+// Get flagged messages for admin review
+async function getFlaggedMessages(status = 'pending', limit = 50) {
+  if (!pool) return [];
+  
+  try {
+    const result = await pool.query(
+      `SELECT * FROM flagged_messages 
+       WHERE status = $1 
+       ORDER BY timestamp DESC 
+       LIMIT $2`,
+      [status, limit]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching flagged messages:', error);
+    return [];
+  }
+}
+
+// Review flagged message (approve/reject)
+async function reviewFlaggedMessage(messageId, action, adminUsername) {
+  if (!pool) return;
+  
+  try {
+    await pool.query(
+      `UPDATE flagged_messages 
+       SET status = $1, reviewed_by = $2, reviewed_at = NOW() 
+       WHERE message_id = $3`,
+      [action, adminUsername, messageId]
+    );
+    console.log(`✅ Message ${messageId} reviewed: ${action}`);
+  } catch (error) {
+    console.error('Error reviewing flagged message:', error);
+  }
+}
+
+// Delete message from database permanently
+async function deleteMessageFromDB(messageId) {
+  if (!pool) return;
+  
+  try {
+    await pool.query(
+      'DELETE FROM messages WHERE time = $1',
+      [messageId]
+    );
+    console.log(`🗑️ Message ${messageId} deleted from database`);
+  } catch (error) {
+    console.error('Error deleting message from database:', error);
+  }
+}
+
 module.exports = {
   pool,
   initDatabase,
   getRoomMessages,
   saveMessage,
-  cleanOldMessages
+  cleanOldMessages,
+  saveFlaggedMessage,
+  getFlaggedMessages,
+  reviewFlaggedMessage,
+  deleteMessageFromDB
 };

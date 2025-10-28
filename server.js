@@ -9,8 +9,13 @@ const {
   initDatabase,
   getRoomMessages,
   saveMessage,
-  cleanOldMessages
+  cleanOldMessages,
+  saveFlaggedMessage,
+  getFlaggedMessages,
+  reviewFlaggedMessage,
+  deleteMessageFromDB
 } = require("./utils/database");
+const { moderateMessage } = require("./utils/aiModeration");
 const {
   getAuth0Config,
   userInfoMiddleware,
@@ -114,6 +119,43 @@ app.get('/profile', requiresAuth(), (req, res) => {
   `);
 });
 
+// Admin API - Get flagged messages
+app.get('/api/admin/flagged', async (req, res) => {
+  // Simple auth check - in production, use proper authentication
+  const username = req.query.username;
+  
+  if (!SUPERUSERS.includes(username)) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  
+  const flaggedMessages = await getFlaggedMessages('pending', 100);
+  res.json({ messages: flaggedMessages });
+});
+
+// Admin API - Review flagged message
+app.post('/api/admin/review', express.json(), async (req, res) => {
+  const { messageId, action, adminUsername } = req.body;
+  
+  if (!SUPERUSERS.includes(adminUsername)) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  
+  if (!['approved', 'rejected'].includes(action)) {
+    return res.status(400).json({ error: 'Invalid action' });
+  }
+  
+  await reviewFlaggedMessage(messageId, action, adminUsername);
+  
+  // If rejected, delete the message from all clients
+  if (action === 'rejected') {
+    io.emit('messageDeleted', { messageId });
+    await deleteMessageFromDB(messageId);
+  }
+  
+  res.json({ success: true });
+});
+
+
 const botName = "ChatCord Bot";
 
 // Initialize database on startup
@@ -187,15 +229,43 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Listen for chatMessage
+  // Listen for chatMessage with AI moderation
   socket.on("chatMessage", async (msg) => {
     const user = getCurrentUser(socket.id);
     const messageId = `${user.room}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // AI Moderation Check
+    const moderationResult = await moderateMessage(msg, user.room);
+    
+    // If message is blocked, notify user and don't send
+    if (moderationResult.blocked) {
+      socket.emit("messageBlocked", {
+        reason: moderationResult.reason,
+        confidence: moderationResult.confidence
+      });
+      console.log(`🚫 Message blocked from ${user.username}: ${moderationResult.reason}`);
+      return;
+    }
+    
+    // If message is flagged, save for admin review but still send
+    if (moderationResult.flagged) {
+      await saveFlaggedMessage(
+        messageId,
+        user.room,
+        user.username,
+        msg,
+        moderationResult.reason,
+        moderationResult.confidence,
+        moderationResult.moderationType
+      );
+      console.log(`🚩 Message flagged from ${user.username}: ${moderationResult.reason}`);
+    }
     
     const message = formatMessage(user.username, msg);
     message.id = messageId;
     message.isSuperuser = SUPERUSERS.includes(user.username);
     message.reactions = {};
+    message.flagged = moderationResult.flagged; // Mark as flagged in UI
     
     // Store message ID for tracking
     messageIds.set(messageId, { room: user.room, username: user.username, text: msg, time: message.time });
@@ -243,23 +313,35 @@ io.on("connection", (socket) => {
   });
 
   // Handle message deletion
-  socket.on("deleteMessage", ({ messageId }) => {
+  socket.on("deleteMessage", async ({ messageId }) => {
     const user = getCurrentUser(socket.id);
     const messageData = messageIds.get(messageId);
     
-    if (!messageData) return;
+    if (!messageData) {
+      console.log(`❌ Message ${messageId} not found`);
+      return;
+    }
     
     // Check if user is authorized to delete (superuser or message owner)
-    if (SUPERUSERS.includes(user.username) || messageData.username === user.username) {
-      // Remove from tracking
-      messageIds.delete(messageId);
-      messageReactions.delete(messageId);
-      
-      // Broadcast deletion to room
-      io.to(messageData.room).emit("messageDeleted", { messageId });
-      
-      console.log(`Message ${messageId} deleted by ${user.username}`);
+    const isAuthorized = SUPERUSERS.includes(user.username) || messageData.username === user.username;
+    
+    if (!isAuthorized) {
+      console.log(`❌ Unauthorized delete attempt by ${user.username} for message ${messageId}`);
+      socket.emit("deleteFailed", { reason: "Not authorized" });
+      return;
     }
+    
+    // Remove from tracking
+    messageIds.delete(messageId);
+    messageReactions.delete(messageId);
+    
+    // Delete from database
+    await deleteMessageFromDB(messageId);
+    
+    // Broadcast deletion to room
+    io.to(messageData.room).emit("messageDeleted", { messageId });
+    
+    console.log(`🗑️ Message ${messageId} deleted by ${user.username}`);
   });
 
   // Runs when client disconnects

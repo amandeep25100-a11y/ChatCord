@@ -49,6 +49,16 @@ socket.on('messageDeleted', ({ messageId }) => {
   }
 });
 
+// Handle blocked message (AI moderation)
+socket.on('messageBlocked', ({ reason, confidence }) => {
+  showNotification(`Message blocked: ${reason}`, 'error', confidence);
+});
+
+// Handle delete failure (authorization)
+socket.on('deleteFailed', ({ reason }) => {
+  showNotification(`Delete failed: ${reason}`, 'error');
+});
+
 // Load message history
 socket.on('messageHistory', (messages) => {
   messages.forEach(message => {
@@ -82,6 +92,12 @@ chatForm.addEventListener('submit', (e) => {
 function outputMessage(message) {
   const div = document.createElement('div');
   div.classList.add('message');
+  
+  // Add flagged class if message was flagged by AI
+  if (message.flagged) {
+    div.classList.add('flagged-message');
+  }
+  
   div.setAttribute('data-message-id', message.id || Date.now());
   
   const p = document.createElement('p');
@@ -361,3 +377,32 @@ document.addEventListener('click', (e) => {
     initThemeToggle();
   }
 })();
+
+// Show notification for blocked messages or errors
+function showNotification(message, type = 'info', confidence = null) {
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  
+  let content = message;
+  if (confidence !== null) {
+    content += ` (Confidence: ${(confidence * 100).toFixed(0)}%)`;
+  }
+  
+  notification.innerHTML = `
+    <div class="notification-content">
+      <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+      <span>${content}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Trigger animation
+  setTimeout(() => notification.classList.add('show'), 10);
+  
+  // Remove after 5 seconds
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 300);
+  }, 5000);
+}

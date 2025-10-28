@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+    integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>Admin Panel - ChatCord</title>
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .admin-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: var(--neon-cyan);
+      margin: 10px 0;
+    }
+
+    .flagged-messages {
+      margin-top: 20px;
+    }
+
+    .flagged-message {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 165, 0, 0.5);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .flagged-message.blocked {
+      border-color: rgba(255, 0, 0, 0.5);
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .message-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 14px;
+      color: #93c5fd;
+    }
+
+    .message-text {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .message-reason {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      padding: 10px;
+      background: rgba(255, 165, 0, 0.1);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .confidence-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .approve-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .approve-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    }
+
+    .reject-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+
+    .reject-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    }
+
+    .delete-btn {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: white;
+    }
+
+    .delete-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4);
+    }
+
+    .no-messages {
+      text-align: center;
+      padding: 60px 20px;
+      color: #93c5fd;
+      font-size: 18px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .filter-tab {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      color: #93c5fd;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .filter-tab.active {
+      background: var(--neon-cyan);
+      color: #0a0118;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--neon-cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-ai {
+      background: linear-gradient(135deg, #a855f7, #8b5cf6);
+      color: white;
+    }
+
+    .badge-keyword {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="logo-container">
+      <i class="fas fa-shield-alt logo-icon"></i>
+      <div class="logo-circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+      </div>
+    </div>
+    <div class="loading-text">Loading Admin Panel...</div>
+    <div class="loading-bar">
+      <div class="loading-bar-fill"></div>
+      <div class="loading-shimmer"></div>
+    </div>
+  </div>
+
+  <div class="admin-container">
+    <a href="/" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Chat
+    </a>
+
+    <div class="admin-header">
+      <h1><i class="fas fa-shield-alt"></i> Admin Moderation Panel</h1>
+      <p>Review AI-flagged messages and manage content</p>
+    </div>
+
+    <div class="admin-stats">
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-number" id="pendingCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Approved Today</div>
+        <div class="stat-number" id="approvedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rejected Today</div>
+        <div class="stat-number" id="rejectedCount">0</div>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="pending">Pending</button>
+      <button class="filter-tab" data-filter="approved">Approved</button>
+      <button class="filter-tab" data-filter="rejected">Rejected</button>
+    </div>
+
+    <div class="flagged-messages" id="flaggedMessages">
+      <div class="no-messages">Loading flagged messages...</div>
+    </div>
+  </div>
+
+  <script>
+    // Get admin username from localStorage or prompt
+    let adminUsername = localStorage.getItem('username');
+    if (!adminUsername) {
+      adminUsername = prompt('Enter your admin username:');
+      if (!adminUsername) {
+        window.location.href = '/';
+      }
+    }
+
+    let currentFilter = 'pending';
+
+    // Hide loading screen after page load
+    setTimeout(() => {
+      document.getElementById('loadingScreen').style.display = 'none';
+    }, 1500);
+
+    // Load flagged messages
+    async function loadFlaggedMessages() {
+      try {
+        const response = await fetch(`/api/admin/flagged?username=${adminUsername}`);
+        
+        if (!response.ok) {
+          if (response.status === 403) {
+            alert('Unauthorized: You are not an admin');
+            window.location.href = '/';
+            return;
+          }
+          throw new Error('Failed to load flagged messages');
+        }
+
+        const data = await response.json();
+        displayMessages(data.messages);
+        updateStats(data.messages);
+      } catch (error) {
+        console.error('Error loading flagged messages:', error);
+        document.getElementById('flaggedMessages').innerHTML = 
+          '<div class="no-messages">Error loading messages. Please try again.</div>';
+      }
+    }
+
+    function displayMessages(messages) {
+      const container = document.getElementById('flaggedMessages');
+      
+      const filteredMessages = messages.filter(msg => msg.status === currentFilter);
+
+      if (filteredMessages.length === 0) {
+        container.innerHTML = `<div class="no-messages">No ${currentFilter} messages</div>`;
+        return;
+      }
+
+      container.innerHTML = filteredMessages.map(msg => `
+        <div class="flagged-message ${msg.confidence > 0.8 ? 'blocked' : ''}">
+          <div class="message-header">
+            <div class="message-meta">
+              <strong><i class="fas fa-user"></i> ${msg.username}</strong>
+              <span><i class="fas fa-door-open"></i> ${msg.room}</span>
+              <span><i class="fas fa-clock"></i> ${new Date(msg.timestamp).toLocaleString()}</span>
+              <span class="badge badge-${msg.moderation_type}">${msg.moderation_type.toUpperCase()}</span>
+            </div>
+          </div>
+          
+          <div class="message-text">
+            "${msg.message_text}"
+          </div>
+
+          <div class="message-reason">
+            <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+            <strong>Reason:</strong> ${msg.reason}
+          </div>
+
+          <div>
+            <strong>Confidence:</strong> ${(msg.confidence * 100).toFixed(0)}%
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width: ${msg.confidence * 100}%"></div>
+            </div>
+          </div>
+
+          ${msg.status === 'pending' ? `
+            <div class="action-buttons">
+              <button class="action-btn approve-btn" onclick="reviewMessage('${msg.message_id}', 'approved')">
+                <i class="fas fa-check"></i> Approve
+              </button>
+              <button class="action-btn reject-btn" onclick="reviewMessage('${msg.message_id}', 'rejected')">
+                <i class="fas fa-times"></i> Reject & Delete
+              </button>
+            </div>
+          ` : `
+            <div style="padding: 10px; text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 10px;">
+              <strong>Status:</strong> ${msg.status.toUpperCase()} by ${msg.reviewed_by || 'system'} on ${new Date(msg.reviewed_at).toLocaleString()}
+            </div>
+          `}
+        </div>
+      `).join('');
+    }
+
+    function updateStats(messages) {
+      const pending = messages.filter(m => m.status === 'pending').length;
+      const approved = messages.filter(m => m.status === 'approved').length;
+      const rejected = messages.filter(m => m.status === 'rejected').length;
+
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('approvedCount').textContent = approved;
+      document.getElementById('rejectedCount').textContent = rejected;
+    }
+
+    async function reviewMessage(messageId, action) {
+      if (!confirm(`Are you sure you want to ${action === 'approved' ? 'approve' : 'reject and delete'} this message?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messageId, action, adminUsername })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to review message');
+        }
+
+        // Reload messages
+        await loadFlaggedMessages();
+      } catch (error) {
+        console.error('Error reviewing message:', error);
+        alert('Failed to review message. Please try again.');
+      }
+    }
+
+    // Filter tabs
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        loadFlaggedMessages();
+      });
+    });
+
+    // Initial load
+    loadFlaggedMessages();
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadFlaggedMessages, 30000);
+  </script>
+</body>
+</html>
