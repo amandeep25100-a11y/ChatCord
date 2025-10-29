@@ -37,8 +37,9 @@ socket.on('message', (message) => {
 });
 
 // Handle emoji reaction
-socket.on('emojiReaction', ({ messageId, emoji, username }) => {
-  updateReaction(messageId, emoji, username);
+socket.on('emojiReaction', ({ messageId, emoji, users, action }) => {
+  console.log(`📨 Received reaction update: ${emoji} on message ${messageId}`, { users, action });
+  updateReaction(messageId, emoji, users);
 });
 
 // Handle message deletion
@@ -221,12 +222,15 @@ function toggleEmojiPicker(messageId) {
 }
 
 function addReaction(messageId, emoji) {
+  console.log(`👆 Adding reaction ${emoji} to message ${messageId} by ${username}`);
   socket.emit('addReaction', { messageId, emoji, username });
 }
 
 function createReactionElement(emoji, users, messageId) {
   const reaction = document.createElement('div');
   reaction.className = 'reaction';
+  
+  // Highlight if current user reacted
   if (users.includes(username)) {
     reaction.classList.add('user-reacted');
   }
@@ -242,6 +246,10 @@ function createReactionElement(emoji, users, messageId) {
   reaction.appendChild(emojiSpan);
   reaction.appendChild(count);
   
+  // Add tooltip showing who reacted
+  reaction.title = users.join(', ');
+  
+  // Click to toggle reaction
   reaction.onclick = () => {
     addReaction(messageId, emoji);
   };
@@ -249,37 +257,54 @@ function createReactionElement(emoji, users, messageId) {
   return reaction;
 }
 
-function updateReaction(messageId, emoji, reactionUsername) {
+function updateReaction(messageId, emoji, users) {
   const messageEl = document.querySelector(`[data-message-id="${messageId}"]`);
-  if (!messageEl) return;
+  if (!messageEl) {
+    console.log(`Message ${messageId} not found for reaction update`);
+    return;
+  }
   
   const reactionsDiv = messageEl.querySelector('.message-reactions');
+  if (!reactionsDiv) {
+    console.log(`Reactions div not found for message ${messageId}`);
+    return;
+  }
+  
+  // Find existing reaction element for this emoji
   let reactionEl = Array.from(reactionsDiv.children).find(r => 
-    r.querySelector('.emoji').innerText === emoji
+    r.querySelector('.emoji') && r.querySelector('.emoji').innerText === emoji
   );
   
+  // If no users, remove the reaction element
+  if (!users || users.length === 0) {
+    if (reactionEl) {
+      reactionEl.remove();
+    }
+    return;
+  }
+  
+  // Create new reaction element if it doesn't exist
   if (!reactionEl) {
-    reactionEl = createReactionElement(emoji, [reactionUsername], messageId);
+    reactionEl = createReactionElement(emoji, users, messageId);
     reactionsDiv.appendChild(reactionEl);
   } else {
-    // Update count
+    // Update existing reaction element
     const countEl = reactionEl.querySelector('.count');
-    const currentCount = parseInt(countEl.innerText);
-    
-    // Toggle reaction
-    if (reactionEl.classList.contains('user-reacted') && reactionUsername === username) {
-      if (currentCount <= 1) {
-        reactionEl.remove();
-      } else {
-        countEl.innerText = currentCount - 1;
-        reactionEl.classList.remove('user-reacted');
-      }
-    } else {
-      countEl.innerText = currentCount + 1;
-      if (reactionUsername === username) {
-        reactionEl.classList.add('user-reacted');
-      }
+    if (countEl) {
+      countEl.innerText = users.length;
     }
+    
+    // Update user-reacted class
+    if (users.includes(username)) {
+      reactionEl.classList.add('user-reacted');
+    } else {
+      reactionEl.classList.remove('user-reacted');
+    }
+    
+    // Update the onclick to use current users
+    reactionEl.onclick = () => {
+      addReaction(messageId, emoji);
+    };
   }
 }
 

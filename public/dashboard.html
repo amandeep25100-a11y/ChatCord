@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+    integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+    crossorigin="anonymous"
+  />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>Dashboard - ChatCord</title>
+  <style>
+    /* Dashboard Specific Styles */
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      gap: 20px;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .profile-card {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      border: 3px solid var(--neon-cyan);
+      object-fit: cover;
+    }
+
+    .profile-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--neon-cyan);
+      margin-bottom: 5px;
+    }
+
+    .profile-bio {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 15px;
+    }
+
+    .quick-links {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .quick-links h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: var(--neon-cyan);
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+    }
+
+    .quick-link:hover {
+      background: rgba(96, 165, 250, 0.2);
+      transform: translateX(5px);
+    }
+
+    .quick-link i {
+      margin-right: 10px;
+      color: var(--neon-cyan);
+    }
+
+    /* Main Feed */
+    .main-feed {
+      max-width: 800px;
+    }
+
+    .dashboard-header {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dashboard-title h1 {
+      font-size: 28px;
+      margin: 0;
+      color: var(--neon-cyan);
+    }
+
+    .filter-dropdown {
+      position: relative;
+    }
+
+    .filter-btn {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .filter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(96, 165, 250, 0.4);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 200px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .dropdown-menu.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown-item {
+      padding: 12px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .dropdown-item:hover {
+      background: rgba(96, 165, 250, 0.2);
+    }
+
+    .dropdown-item.active {
+      background: rgba(96, 165, 250, 0.3);
+      color: var(--neon-cyan);
+    }
+
+    .dropdown-item i {
+      font-size: 18px;
+    }
+
+    /* Create Post Card */
+    .create-post-card {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .create-post-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .create-post-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-cyan);
+      object-fit: cover;
+    }
+
+    .create-post-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      padding: 12px 20px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .create-post-input:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--neon-cyan);
+    }
+
+    .post-actions {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .post-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .post-action-btn:hover {
+      background: rgba(96, 165, 250, 0.2);
+      color: var(--neon-cyan);
+    }
+
+    .post-action-btn i {
+      font-size: 18px;
+    }
+
+    /* Post Modal */
+    .post-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .post-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: rgba(15, 23, 42, 0.98);
+      border: 2px solid rgba(96, 165, 250, 0.3);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      color: var(--neon-cyan);
+    }
+
+    .close-modal {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-size: 28px;
+      transition: all 0.3s;
+    }
+
+    .close-modal:hover {
+      color: #ef4444;
+      transform: rotate(90deg);
+    }
+
+    .modal-body textarea {
+      width: 100%;
+      min-height: 150px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      color: white;
+      font-size: 16px;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+
+    .modal-body textarea:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+    }
+
+    .file-upload-area {
+      border: 2px dashed rgba(96, 165, 250, 0.3);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-upload-area:hover {
+      border-color: var(--neon-cyan);
+      background: rgba(96, 165, 250, 0.05);
+    }
+
+    .file-upload-area i {
+      font-size: 48px;
+      color: var(--neon-cyan);
+      margin-bottom: 10px;
+    }
+
+    .file-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .preview-item {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .preview-item img,
+    .preview-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-preview {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(239, 68, 68, 0.9);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .category-select:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+    }
+
+    .submit-post-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-post-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(96, 165, 250, 0.4);
+    }
+
+    .submit-post-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Posts Feed */
+    .posts-feed {
+      margin-top: 20px;
+    }
+
+    .post-card {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+
+    .post-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(96, 165, 250, 0.4);
+      box-shadow: 0 8px 24px rgba(96, 165, 250, 0.2);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .post-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-cyan);
+      margin-right: 15px;
+      object-fit: cover;
+    }
+
+    .post-author-info {
+      flex: 1;
+    }
+
+    .post-author {
+      font-weight: 600;
+      color: var(--neon-cyan);
+      margin-bottom: 3px;
+    }
+
+    .post-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .post-category {
+      background: rgba(96, 165, 250, 0.2);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neon-cyan);
+    }
+
+    .post-content {
+      margin-bottom: 15px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+    }
+
+    .post-media {
+      margin-bottom: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .post-media img,
+    .post-media video {
+      width: 100%;
+      display: block;
+    }
+
+    .post-engagement {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .engagement-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 15px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .engagement-btn:hover {
+      background: rgba(96, 165, 250, 0.2);
+      color: var(--neon-cyan);
+    }
+
+    .engagement-btn.active {
+      color: var(--neon-cyan);
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .trending-card {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .trending-card h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--neon-cyan);
+    }
+
+    .trending-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .trending-item:last-child {
+      border-bottom: none;
+    }
+
+    .trending-topic {
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 3px;
+    }
+
+    .trending-count {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar,
+      .right-sidebar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .post-actions {
+        flex-wrap: wrap;
+      }
+
+      .post-action-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen">
+    <div class="loading-logo">
+      <div class="logo-circles">
+        <div class="logo-circle"></div>
+        <div class="logo-circle"></div>
+        <div class="logo-circle"></div>
+      </div>
+      <i class="fas fa-rocket logo-icon"></i>
+    </div>
+    <div class="loading-text">Loading Dashboard...</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar"></div>
+    </div>
+  </div>
+
+  <!-- Cosmic space background layers -->
+  <div class="space-layer"></div>
+  <div class="stars-distant"></div>
+  <div class="stars-mid"></div>
+  <div class="stars-close"></div>
+  <div class="clouds"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="comet"></div>
+  <div class="comet"></div>
+
+  <!-- Theme toggle -->
+  <button id="theme-toggle" class="btn theme-toggle" aria-label="Toggle theme">🌗</button>
+
+  <div class="dashboard-container">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="profile-card">
+        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=60a5fa&color=fff" alt="Profile" class="profile-avatar">
+        <div class="profile-name" id="user-name">Loading...</div>
+        <div class="profile-bio" id="user-bio">Developer & Learner</div>
+      </div>
+
+      <div class="quick-links">
+        <h3><i class="fas fa-link"></i> Quick Links</h3>
+        <a href="/rooms.html" class="quick-link">
+          <i class="fas fa-door-open"></i>
+          <span>Chat Rooms</span>
+        </a>
+        <a href="/admin.html" class="quick-link" id="admin-link" style="display: none;">
+          <i class="fas fa-shield-alt"></i>
+          <span>Admin Panel</span>
+        </a>
+        <a href="/" class="quick-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="#" class="quick-link" id="logout-link">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Feed -->
+    <main class="main-feed">
+      <!-- Header with Filter -->
+      <div class="dashboard-header">
+        <div class="dashboard-title">
+          <h1><i class="fas fa-rocket"></i> Dashboard</h1>
+        </div>
+        <div class="filter-dropdown">
+          <button class="filter-btn" id="filter-btn">
+            <i class="fas fa-filter"></i>
+            <span id="current-filter">All Topics</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu" id="dropdown-menu">
+            <div class="dropdown-item active" data-filter="all">
+              <i class="fas fa-globe"></i>
+              <span>All Topics</span>
+            </div>
+            <div class="dropdown-item" data-filter="javascript">
+              <i class="fab fa-js-square"></i>
+              <span>JavaScript</span>
+            </div>
+            <div class="dropdown-item" data-filter="python">
+              <i class="fab fa-python"></i>
+              <span>Python</span>
+            </div>
+            <div class="dropdown-item" data-filter="ruby">
+              <i class="fas fa-gem"></i>
+              <span>Ruby</span>
+            </div>
+            <div class="dropdown-item" data-filter="php">
+              <i class="fab fa-php"></i>
+              <span>PHP</span>
+            </div>
+            <div class="dropdown-item" data-filter="csharp">
+              <i class="fas fa-hashtag"></i>
+              <span>C#</span>
+            </div>
+            <div class="dropdown-item" data-filter="java">
+              <i class="fab fa-java"></i>
+              <span>Java</span>
+            </div>
+            <div class="dropdown-item" data-filter="general">
+              <i class="fas fa-comments"></i>
+              <span>General</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Post Card -->
+      <div class="create-post-card">
+        <div class="create-post-header">
+          <img id="create-avatar" src="https://ui-avatars.com/api/?name=User&background=60a5fa&color=fff" alt="Your avatar" class="create-post-avatar">
+          <div class="create-post-input" id="open-post-modal">
+            Start a post... Share your knowledge, projects, or questions
+          </div>
+        </div>
+        <div class="post-actions">
+          <button class="post-action-btn" data-type="image">
+            <i class="fas fa-image"></i>
+            <span>Photo</span>
+          </button>
+          <button class="post-action-btn" data-type="video">
+            <i class="fas fa-video"></i>
+            <span>Video</span>
+          </button>
+          <button class="post-action-btn" data-type="code">
+            <i class="fas fa-code"></i>
+            <span>Code</span>
+          </button>
+          <button class="post-action-btn" data-type="achievement">
+            <i class="fas fa-trophy"></i>
+            <span>Achievement</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Posts Feed -->
+      <div class="posts-feed" id="posts-feed">
+        <!-- Posts will be dynamically loaded here -->
+      </div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar">
+      <div class="trending-card">
+        <h3><i class="fas fa-fire"></i> Trending Topics</h3>
+        <div class="trending-item">
+          <div class="trending-topic">#JavaScript ES2024</div>
+          <div class="trending-count">234 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-topic">#Python Machine Learning</div>
+          <div class="trending-count">189 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-topic">#WebDevelopment</div>
+          <div class="trending-count">156 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-topic">#CodeChallenge</div>
+          <div class="trending-count">142 posts</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-topic">#OpenSource</div>
+          <div class="trending-count">128 posts</div>
+        </div>
+      </div>
+
+      <div class="trending-card">
+        <h3><i class="fas fa-users"></i> Suggested Connections</h3>
+        <div class="trending-item">
+          <div class="trending-topic">Sarah Chen</div>
+          <div class="trending-count">Full Stack Developer</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-topic">Mike Johnson</div>
+          <div class="trending-count">Python Expert</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-topic">Emily Rodriguez</div>
+          <div class="trending-count">UI/UX Designer</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Create Post Modal -->
+  <div class="post-modal" id="post-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Create a Post</h2>
+        <button class="close-modal" id="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <select class="category-select" id="post-category">
+          <option value="all">Select Category</option>
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="ruby">Ruby</option>
+          <option value="php">PHP</option>
+          <option value="csharp">C#</option>
+          <option value="java">Java</option>
+          <option value="general">General</option>
+        </select>
+
+        <textarea id="post-content" placeholder="What do you want to share? Tips, projects, questions, achievements..."></textarea>
+
+        <div class="file-upload-area" id="file-upload-area">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click or drag to upload images/videos</p>
+          <input type="file" id="file-input" accept="image/*,video/*" multiple style="display: none;">
+        </div>
+
+        <div class="file-preview" id="file-preview"></div>
+
+        <button class="submit-post-btn" id="submit-post-btn">
+          <i class="fas fa-paper-plane"></i> Publish Post
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    // Hide loading screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.querySelector('.loading-screen').classList.add('hidden');
+      }, 1500);
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle?.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+  </script>
+</body>
+</html>

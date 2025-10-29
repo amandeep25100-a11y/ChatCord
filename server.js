@@ -1,3 +1,6 @@
+// Load environment variables FIRST before anything else
+require("dotenv").config();
+
 const path = require("path");
 const http = require("http");
 const express = require("express");
@@ -22,7 +25,6 @@ const {
   isAuth0Enabled,
   requiresAuth
 } = require("./utils/auth");
-require("dotenv").config();
 const {
   userJoin,
   getCurrentUser,
@@ -282,7 +284,10 @@ io.on("connection", (socket) => {
   // Handle emoji reactions
   socket.on("addReaction", ({ messageId, emoji, username }) => {
     const messageData = messageIds.get(messageId);
-    if (!messageData) return;
+    if (!messageData) {
+      console.log(`❌ Message ${messageId} not found for reaction`);
+      return;
+    }
     
     // Get or create reactions for this message
     if (!messageReactions.has(messageId)) {
@@ -303,13 +308,20 @@ io.on("connection", (socket) => {
       if (reactions[emoji].length === 0) {
         delete reactions[emoji];
       }
+      console.log(`➖ ${username} removed reaction ${emoji} from message ${messageId}`);
     } else {
       // Add reaction
       reactions[emoji].push(username);
+      console.log(`➕ ${username} added reaction ${emoji} to message ${messageId}`);
     }
     
-    // Broadcast the reaction update to the room
-    io.to(messageData.room).emit("emojiReaction", { messageId, emoji, username });
+    // Broadcast the reaction update to the room with full user list
+    io.to(messageData.room).emit("emojiReaction", { 
+      messageId, 
+      emoji, 
+      users: reactions[emoji] || [],  // Send full list of users who reacted
+      action: userIndex > -1 ? 'remove' : 'add'  // Tell clients if it was add or remove
+    });
   });
 
   // Handle message deletion
@@ -364,6 +376,24 @@ io.on("connection", (socket) => {
         users: getRoomUsers(user.room),
       });
     }
+  });
+
+  // ============== Dashboard Post Handlers ==============
+  
+  // Handle new post creation
+  socket.on("createPost", (post) => {
+    console.log(`📝 New post created by ${post.author} in category: ${post.category}`);
+    
+    // Broadcast to all connected clients
+    io.emit("newPost", post);
+  });
+
+  // Handle post updates (likes, comments, etc.)
+  socket.on("updatePost", (post) => {
+    console.log(`🔄 Post ${post.id} updated by user`);
+    
+    // Broadcast update to all clients
+    io.emit("postUpdated", post);
   });
 });
 
