@@ -253,8 +253,8 @@ submitPostBtn.addEventListener('click', async () => {
   // Emit to server
   socket.emit('createPost', post);
   
-  // Add to local feed immediately
-  addPostToFeed(post);
+  // Don't add to local feed - let the server broadcast handle it
+  // This prevents duplicate posts
   
   // Reset form
   postContentTextarea.value = '';
@@ -278,6 +278,10 @@ let allPosts = [];
 
 // Listen for new posts from server
 socket.on('newPost', (post) => {
+  // Check if post already exists to prevent duplicates
+  const exists = allPosts.find(p => p.id === post.id);
+  if (exists) return;
+  
   allPosts.unshift(post);
   if (currentFilter === 'all' || currentFilter === post.category) {
     addPostToFeed(post, true);

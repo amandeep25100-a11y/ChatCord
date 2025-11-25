@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+    integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+    crossorigin="anonymous"
+  />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>Marketplace - ChatCord</title>
+  <style>
+    /* Marketplace Specific Styles */
+    .marketplace-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .marketplace-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px 30px;
+      margin-bottom: 30px;
+    }
+
+    .nav-left h1 {
+      margin: 0;
+      color: var(--neon-cyan);
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .currency-display {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(96, 165, 250, 0.1);
+      padding: 12px 20px;
+      border-radius: 30px;
+      border: 1.5px solid rgba(96, 165, 250, 0.3);
+    }
+
+    .diamond-count {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--neon-cyan);
+    }
+
+    .diamond-icon {
+      font-size: 24px;
+      color: #60a5fa;
+      filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+    }
+
+    .buy-diamonds-btn {
+      background: linear-gradient(135deg, #f59e0b, #eab308);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .buy-diamonds-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .premium-badge {
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Premium Banner */
+    .premium-banner {
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .premium-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(10%, 10%); }
+    }
+
+    .premium-banner h2 {
+      font-size: 36px;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .premium-banner p {
+      font-size: 18px;
+      margin-bottom: 25px;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .premium-options {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .premium-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      padding: 30px;
+      min-width: 250px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .premium-card:hover {
+      transform: translateY(-5px);
+      border-color: white;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .premium-card h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .premium-price {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .premium-features {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .premium-features li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .premium-features i {
+      color: #10b981;
+    }
+
+    /* Category Tabs */
+    .category-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .category-tab {
+      background: rgba(255, 255, 255, 0.09);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .category-tab:hover {
+      background: rgba(96, 165, 250, 0.2);
+      border-color: var(--neon-cyan);
+    }
+
+    .category-tab.active {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border-color: transparent;
+    }
+
+    /* Resource Grid */
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .resource-card {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(96, 165, 250, 0.4);
+      box-shadow: 0 12px 30px rgba(96, 165, 250, 0.3);
+    }
+
+    .resource-thumbnail {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      color: white;
+      position: relative;
+    }
+
+    .resource-premium-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .resource-info {
+      padding: 20px;
+    }
+
+    .resource-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: var(--neon-cyan);
+    }
+
+    .resource-author {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 10px;
+    }
+
+    .resource-description {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+    }
+
+    .resource-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .resource-rating {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #fbbf24;
+    }
+
+    .resource-students {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .resource-price {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .price-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--neon-cyan);
+    }
+
+    .buy-btn {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .buy-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(96, 165, 250, 0.4);
+    }
+
+    .buy-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: rgba(15, 23, 42, 0.98);
+      border: 2px solid rgba(96, 165, 250, 0.3);
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 40px;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .modal-title {
+      font-size: 28px;
+      color: var(--neon-cyan);
+    }
+
+    .close-modal {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-size: 32px;
+      transition: all 0.3s;
+    }
+
+    .close-modal:hover {
+      color: #ef4444;
+      transform: rotate(90deg);
+    }
+
+    .diamond-packages {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .diamond-package {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(96, 165, 250, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .diamond-package:hover {
+      background: rgba(96, 165, 250, 0.1);
+      border-color: var(--neon-cyan);
+      transform: scale(1.05);
+    }
+
+    .diamond-package.selected {
+      background: rgba(96, 165, 250, 0.2);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+    }
+
+    .package-amount {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .package-price {
+      font-size: 20px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .bonus-tag {
+      background: linear-gradient(135deg, #f59e0b, #eab308);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .premium-options {
+        flex-direction: column;
+      }
+
+      .resources-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .marketplace-nav {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen">
+    <div class="loading-logo">
+      <div class="logo-circles">
+        <div class="logo-circle"></div>
+        <div class="logo-circle"></div>
+        <div class="logo-circle"></div>
+      </div>
+      <i class="fas fa-store logo-icon"></i>
+    </div>
+    <div class="loading-text">Loading Marketplace...</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar"></div>
+    </div>
+  </div>
+
+  <!-- Cosmic space background -->
+  <div class="space-layer"></div>
+  <div class="stars-distant"></div>
+  <div class="stars-mid"></div>
+  <div class="stars-close"></div>
+  <div class="clouds"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="comet"></div>
+  <div class="comet"></div>
+
+  <!-- Theme toggle -->
+  <button id="theme-toggle" class="btn theme-toggle" aria-label="Toggle theme">🌗</button>
+
+  <div class="marketplace-container">
+    <!-- Top Navigation -->
+    <nav class="marketplace-nav">
+      <div class="nav-left">
+        <h1><i class="fas fa-store"></i> Marketplace</h1>
+      </div>
+      <div class="nav-right">
+        <div class="currency-display">
+          <div class="diamond-count">
+            <i class="fas fa-gem diamond-icon"></i>
+            <span id="diamond-balance">0</span>
+          </div>
+          <button class="buy-diamonds-btn" id="buy-diamonds-btn">
+            <i class="fas fa-plus"></i>
+            Buy Diamonds
+          </button>
+        </div>
+        <div id="premium-status">
+          <!-- Premium badge appears here if user has premium -->
+        </div>
+        <a href="/dashboard.html" class="btn">
+          <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+      </div>
+    </nav>
+
+    <!-- Premium Banner -->
+    <div class="premium-banner">
+      <h2><i class="fas fa-crown"></i> Unlock Premium Access</h2>
+      <p>Get unlimited access to all courses, e-books, videos, and resources!</p>
+      
+      <div class="premium-options">
+        <div class="premium-card" data-plan="monthly">
+          <h3>Monthly</h3>
+          <div class="premium-price">$9.99<span style="font-size: 16px;">/mo</span></div>
+          <ul class="premium-features">
+            <li><i class="fas fa-check"></i> Unlimited Resources</li>
+            <li><i class="fas fa-check"></i> Ad-Free Experience</li>
+            <li><i class="fas fa-check"></i> Early Access</li>
+            <li><i class="fas fa-check"></i> Priority Support</li>
+          </ul>
+          <button class="btn" style="width: 100%;">Subscribe</button>
+        </div>
+
+        <div class="premium-card" data-plan="yearly" style="border-color: #fbbf24; border-width: 3px;">
+          <div style="background: #fbbf24; color: black; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 10px; font-weight: bold;">
+            SAVE 40%
+          </div>
+          <h3>Yearly</h3>
+          <div class="premium-price">$59.99<span style="font-size: 16px;">/yr</span></div>
+          <ul class="premium-features">
+            <li><i class="fas fa-check"></i> Everything in Monthly</li>
+            <li><i class="fas fa-check"></i> Exclusive Content</li>
+            <li><i class="fas fa-check"></i> Certificates</li>
+            <li><i class="fas fa-check"></i> Offline Access</li>
+          </ul>
+          <button class="btn" style="width: 100%; background: linear-gradient(135deg, #fbbf24, #f59e0b);">Best Value</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs">
+      <button class="category-tab active" data-category="all">
+        <i class="fas fa-th"></i> All Resources
+      </button>
+      <button class="category-tab" data-category="courses">
+        <i class="fas fa-graduation-cap"></i> Courses
+      </button>
+      <button class="category-tab" data-category="ebooks">
+        <i class="fas fa-book"></i> E-Books
+      </button>
+      <button class="category-tab" data-category="videos">
+        <i class="fas fa-video"></i> Video Tutorials
+      </button>
+      <button class="category-tab" data-category="templates">
+        <i class="fas fa-code"></i> Code Templates
+      </button>
+      <button class="category-tab" data-category="tools">
+        <i class="fas fa-tools"></i> Dev Tools
+      </button>
+    </div>
+
+    <!-- Resources Grid -->
+    <div class="resources-grid" id="resources-grid">
+      <!-- Resources will be dynamically loaded here -->
+    </div>
+  </div>
+
+  <!-- Buy Diamonds Modal -->
+  <div class="modal" id="buy-diamonds-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-gem"></i> Buy Diamonds</h2>
+        <button class="close-modal" id="close-diamonds-modal">&times;</button>
+      </div>
+      
+      <p style="margin-bottom: 25px; opacity: 0.8;">
+        Choose a diamond package to unlock premium content
+      </p>
+
+      <div class="diamond-packages">
+        <div class="diamond-package" data-amount="100" data-price="4.99">
+          <div class="package-amount">
+            <i class="fas fa-gem" style="color: #60a5fa;"></i>
+            100
+          </div>
+          <div class="package-price">$4.99</div>
+        </div>
+
+        <div class="diamond-package" data-amount="500" data-price="19.99">
+          <div class="package-amount">
+            <i class="fas fa-gem" style="color: #60a5fa;"></i>
+            500
+          </div>
+          <div class="package-price">$19.99</div>
+          <span class="bonus-tag">+50 Bonus</span>
+        </div>
+
+        <div class="diamond-package" data-amount="1200" data-price="39.99">
+          <div class="package-amount">
+            <i class="fas fa-gem" style="color: #60a5fa;"></i>
+            1200
+          </div>
+          <div class="package-price">$39.99</div>
+          <span class="bonus-tag">+200 Bonus</span>
+        </div>
+
+        <div class="diamond-package" data-amount="3000" data-price="89.99">
+          <div class="package-amount">
+            <i class="fas fa-gem" style="color: #60a5fa;"></i>
+            3000
+          </div>
+          <div class="package-price">$89.99</div>
+          <span class="bonus-tag">+700 Bonus</span>
+        </div>
+      </div>
+
+      <button class="btn" id="confirm-purchase-btn" style="width: 100%; padding: 15px; font-size: 18px;" disabled>
+        Select a Package
+      </button>
+
+      <p style="margin-top: 20px; font-size: 13px; opacity: 0.6; text-align: center;">
+        <i class="fas fa-lock"></i> Secure payment powered by Stripe
+      </p>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/marketplace.js"></script>
+  <script>
+    // Hide loading screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.querySelector('.loading-screen').classList.add('hidden');
+      }, 1500);
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle?.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+  </script>
+</body>
+</html>
