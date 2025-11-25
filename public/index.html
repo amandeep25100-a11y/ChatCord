@@ -148,20 +148,20 @@
 						
 						document.getElementById('auth-loading').style.display = 'none';
 						
-						if (data.isAuthenticated) {
-							// User is logged in - redirect to dashboard
-							const username = data.user.name || data.user.email;
-							const avatar = data.user.picture;
-							
-							// Store user info
-							try {
-								localStorage.setItem('username', username);
-								localStorage.setItem('userAvatar', avatar);
-								localStorage.setItem('userEmail', data.user.email);
-							} catch (e) {}
-							
-							// Redirect to dashboard
-							window.location.href = `dashboard.html?username=${encodeURIComponent(username)}`;
+					if (data.isAuthenticated) {
+						// User is logged in - redirect to rooms page
+						const username = data.user.name || data.user.email;
+						const avatar = data.user.picture;
+						
+						// Store user info
+						try {
+							localStorage.setItem('username', username);
+							localStorage.setItem('userAvatar', avatar);
+							localStorage.setItem('userEmail', data.user.email);
+						} catch (e) {}
+						
+						// Redirect to rooms page
+						window.location.href = `rooms.html?username=${encodeURIComponent(username)}`;
 							return;
 						} else {
 							// User is not logged in

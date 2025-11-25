@@ -35,7 +35,17 @@ const dropdownMenu = document.getElementById('dropdown-menu');
 const currentFilterText = document.getElementById('current-filter');
 let currentFilter = 'all';
 
-filterBtn.addEventListener('click', () => {
+filterBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const isActive = dropdownMenu.classList.contains('active');
+  
+  if (!isActive) {
+    // Calculate position relative to button
+    const rect = filterBtn.getBoundingClientRect();
+    dropdownMenu.style.top = `${rect.bottom + 8}px`;
+    dropdownMenu.style.left = `${rect.right - 200}px`; // 200px is min-width of dropdown
+  }
+  
   dropdownMenu.classList.toggle('active');
 });
 
@@ -44,6 +54,11 @@ document.addEventListener('click', (e) => {
   if (!filterBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
     dropdownMenu.classList.remove('active');
   }
+});
+
+// Prevent dropdown from closing when clicking inside it
+dropdownMenu.addEventListener('click', (e) => {
+  e.stopPropagation();
 });
 
 // Filter selection

@@ -101,6 +101,7 @@
     /* Main Feed */
     .main-feed {
       max-width: 800px;
+      overflow: visible;
     }
 
     .dashboard-header {
@@ -113,6 +114,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      overflow: visible;
+      position: relative;
     }
 
     .dashboard-title h1 {
@@ -123,6 +126,7 @@
 
     .filter-dropdown {
       position: relative;
+      overflow: visible;
     }
 
     .filter-btn {
@@ -146,16 +150,14 @@
 
     .dropdown-menu {
       display: none;
-      position: absolute;
-      top: 110%;
-      right: 0;
+      position: fixed;
       background: rgba(15, 23, 42, 0.98);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(96, 165, 250, 0.3);
       border-radius: 12px;
       padding: 10px;
       min-width: 200px;
-      z-index: 1000;
+      z-index: 99999;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
@@ -418,18 +420,32 @@
 
     .category-select {
       width: 100%;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 15px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1.5px solid rgba(96, 165, 250, 0.3);
       border-radius: 8px;
       color: white;
       margin-bottom: 15px;
       font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
     }
 
     .category-select:focus {
       outline: none;
       border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+    }
+
+    .category-select option {
+      background: rgba(15, 23, 42, 0.98);
+      color: white;
+      padding: 10px;
+      font-size: 15px;
+    }
+
+    .category-select option:hover {
+      background: rgba(96, 165, 250, 0.3);
     }
 
     .submit-post-btn {
