@@ -1220,6 +1220,49 @@ body.dark .chat-messages .message .text{
 	color: #7dd3fc;
 }
 
+/* Image message styles */
+.message-image-container {
+	margin-top: 10px;
+	max-width: 400px;
+}
+
+.message-image {
+	max-width: 100%;
+	height: auto;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.message-image:hover {
+	transform: scale(1.02);
+	box-shadow: 0 8px 24px rgba(96, 165, 250, 0.4);
+}
+
+body:not(.dark) .message-image {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body:not(.dark) .message-image:hover {
+	box-shadow: 0 8px 24px rgba(96, 165, 250, 0.3);
+}
+
+/* Image preview in form */
+#image-preview-container {
+	animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 /* Message Actions (reactions, delete) */
 .message-actions {
 	display: none;

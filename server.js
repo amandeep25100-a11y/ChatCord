@@ -7,6 +7,8 @@ const express = require("express");
 const socketio = require("socket.io");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const multer = require("multer");
+const fs = require("fs");
 const formatMessage = require("./utils/messages");
 const {
   initDatabase,
@@ -61,6 +63,59 @@ if (auth0Config) {
 
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // Accept images only
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+// Image upload endpoint
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const imageUrl = '/uploads/' + req.file.filename;
+    res.json({ 
+      success: true, 
+      imageUrl: imageUrl,
+      filename: req.file.filename
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
@@ -222,7 +277,7 @@ io.on("connection", (socket) => {
     socket.broadcast.to(user.room).emit("message", joinMsg);
     
     // Save join message to PostgreSQL
-    await saveMessage(user.room, botName, `${user.username} has joined the chat`, joinMsg.id, 'system', joinMsg.time);
+    await saveMessage(user.room, botName, `${user.username} has joined the chat`, null, 'system', joinMsg.time);
 
     // Send users and room info
     io.to(user.room).emit("roomUsers", {
@@ -275,10 +330,33 @@ io.on("connection", (socket) => {
     io.to(user.room).emit("message", message);
     
     // Save message to PostgreSQL
-    await saveMessage(user.room, user.username, msg, messageId, 'text', message.time);
+    await saveMessage(user.room, user.username, msg, null, 'text', message.time);
     
     // Optional: Clean old messages periodically (keep last 1000)
     // await cleanOldMessages(user.room, 1000);
+  });
+
+  // Listen for image messages
+  socket.on("imageMessage", async ({ imageUrl, caption }) => {
+    const user = getCurrentUser(socket.id);
+    const messageId = `${user.room}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const message = formatMessage(user.username, caption || '');
+    message.id = messageId;
+    message.imageUrl = imageUrl;
+    message.messageType = 'image';
+    message.isSuperuser = SUPERUSERS.includes(user.username);
+    message.reactions = {};
+    
+    // Store message ID for tracking
+    messageIds.set(messageId, { room: user.room, username: user.username, text: caption, imageUrl, time: message.time });
+    
+    io.to(user.room).emit("message", message);
+    
+    // Save image message to PostgreSQL
+    await saveMessage(user.room, user.username, caption || '', imageUrl, 'image', message.time);
+    
+    console.log(`📸 Image shared by ${user.username} in ${user.room}`);
   });
 
   // Handle emoji reactions
@@ -368,7 +446,7 @@ io.on("connection", (socket) => {
       io.to(user.room).emit("message", leaveMsg);
       
       // Save leave message to PostgreSQL
-      await saveMessage(user.room, botName, `${user.username} has left the chat`, leaveMsg.id, 'system', leaveMsg.time);
+      await saveMessage(user.room, botName, `${user.username} has left the chat`, null, 'system', leaveMsg.time);
 
       // Send users and room info
       io.to(user.room).emit("roomUsers", {

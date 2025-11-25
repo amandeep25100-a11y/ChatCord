@@ -61,15 +61,31 @@
         <div class="chat-messages"></div>
       </main>
       <div class="chat-form-container">
+        <!-- Image Preview -->
+        <div id="image-preview-container" style="display: none; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img id="image-preview" src="" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 8px; object-fit: cover;">
+              <input type="text" id="image-caption" placeholder="Add a caption (optional)" style="flex: 1; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px; border-radius: 5px; color: white;">
+            </div>
+            <button type="button" id="cancel-image" class="btn" style="background: #ef4444;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
         <form id="chat-form">
           <input
             id="msg"
             type="text"
-            placeholder="Enter Message"
-            required
+            placeholder="Enter Message or paste image..."
             autocomplete="off"
           />
-          <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+          <input type="file" id="image-input" accept="image/*" style="display: none;">
+          <button type="button" id="image-btn" class="btn" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+            <i class="fas fa-image"></i>
+          </button>
+          <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Send</button>
         </form>
       </div>
     </div>

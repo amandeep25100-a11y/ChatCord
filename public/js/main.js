@@ -72,6 +72,14 @@ socket.on('messageHistory', (messages) => {
 chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
+  // Check if we have an image to send
+  const imagePreviewContainer = document.getElementById('image-preview-container');
+  if (imagePreviewContainer && imagePreviewContainer.style.display !== 'none') {
+    // Send image message
+    sendImageMessage();
+    return;
+  }
+
   // Get message text
   let msg = e.target.elements.msg.value;
 
@@ -87,6 +95,148 @@ chatForm.addEventListener('submit', (e) => {
   // Clear input
   e.target.elements.msg.value = '';
   e.target.elements.msg.focus();
+});
+
+// Image upload functionality
+const imageBtn = document.getElementById('image-btn');
+const imageInput = document.getElementById('image-input');
+const imagePreviewContainer = document.getElementById('image-preview-container');
+const imagePreview = document.getElementById('image-preview');
+const imageCaption = document.getElementById('image-caption');
+const cancelImageBtn = document.getElementById('cancel-image');
+const msgInput = document.getElementById('msg');
+
+let selectedImageFile = null;
+
+// Click image button to select file
+imageBtn?.addEventListener('click', () => {
+  imageInput.click();
+});
+
+// Handle file selection
+imageInput?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    handleImageFile(file);
+  }
+});
+
+// Handle image file
+function handleImageFile(file) {
+  // Check file size (5MB limit)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Image size must be less than 5MB');
+    return;
+  }
+
+  selectedImageFile = file;
+  const reader = new FileReader();
+  
+  reader.onload = (e) => {
+    imagePreview.src = e.target.result;
+    imagePreviewContainer.style.display = 'block';
+    msgInput.placeholder = 'Add a caption...';
+    msgInput.removeAttribute('required');
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+// Cancel image selection
+cancelImageBtn?.addEventListener('click', () => {
+  cancelImageSelection();
+});
+
+function cancelImageSelection() {
+  selectedImageFile = null;
+  imagePreview.src = '';
+  imageCaption.value = '';
+  imagePreviewContainer.style.display = 'none';
+  imageInput.value = '';
+  msgInput.placeholder = 'Enter Message or paste image...';
+  msgInput.setAttribute('required', '');
+}
+
+// Send image message
+async function sendImageMessage() {
+  if (!selectedImageFile) return;
+
+  try {
+    // Show uploading state
+    imageBtn.disabled = true;
+    imageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    // Upload image
+    const formData = new FormData();
+    formData.append('image', selectedImageFile);
+
+    const response = await fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+
+    const data = await response.json();
+
+    // Get caption from either caption input or message input
+    const caption = imageCaption.value.trim() || msgInput.value.trim();
+
+    // Emit image message to server
+    socket.emit('imageMessage', {
+      imageUrl: data.imageUrl,
+      caption: caption
+    });
+
+    // Clear inputs
+    msgInput.value = '';
+    cancelImageSelection();
+
+  } catch (error) {
+    console.error('Image upload error:', error);
+    alert('Failed to upload image. Please try again.');
+  } finally {
+    imageBtn.disabled = false;
+    imageBtn.innerHTML = '<i class="fas fa-image"></i>';
+  }
+}
+
+// Drag and drop support
+const chatFormContainer = document.querySelector('.chat-form-container');
+
+chatFormContainer?.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  chatFormContainer.style.background = 'rgba(96, 165, 250, 0.1)';
+});
+
+chatFormContainer?.addEventListener('dragleave', (e) => {
+  chatFormContainer.style.background = '';
+});
+
+chatFormContainer?.addEventListener('drop', (e) => {
+  e.preventDefault();
+  chatFormContainer.style.background = '';
+
+  const files = e.dataTransfer.files;
+  if (files.length > 0 && files[0].type.startsWith('image/')) {
+    handleImageFile(files[0]);
+  }
+});
+
+// Paste image from clipboard
+msgInput?.addEventListener('paste', (e) => {
+  const items = e.clipboardData.items;
+  
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) {
+      e.preventDefault();
+      const file = items[i].getAsFile();
+      handleImageFile(file);
+      break;
+    }
+  }
 });
 
 // Output message to DOM
@@ -124,10 +274,42 @@ function outputMessage(message) {
   p.appendChild(timeSpan);
   div.appendChild(p);
   
-  const para = document.createElement('p');
-  para.classList.add('text');
-  para.innerText = message.text;
-  div.appendChild(para);
+  // Handle image messages
+  if (message.imageUrl) {
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'message-image-container';
+    
+    const img = document.createElement('img');
+    img.src = message.imageUrl;
+    img.alt = 'Shared image';
+    img.className = 'message-image';
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '8px';
+    img.style.marginTop = '10px';
+    img.style.cursor = 'pointer';
+    
+    // Click to view full size
+    img.addEventListener('click', () => {
+      window.open(message.imageUrl, '_blank');
+    });
+    
+    imageContainer.appendChild(img);
+    div.appendChild(imageContainer);
+    
+    // Add caption if exists
+    if (message.text) {
+      const caption = document.createElement('p');
+      caption.classList.add('text');
+      caption.innerText = message.text;
+      div.appendChild(caption);
+    }
+  } else {
+    // Regular text message
+    const para = document.createElement('p');
+    para.classList.add('text');
+    para.innerText = message.text;
+    div.appendChild(para);
+  }
   
   // Add message actions (emoji reactions, delete)
   const actions = createMessageActions(message);
