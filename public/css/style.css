@@ -684,6 +684,16 @@ a {
 		inset 0 1px 0 rgba(255, 255, 255, 0.15),
 		inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 	animation: gradient-shift 5s ease infinite;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+/* Icon sizing for buttons */
+.btn i {
+	font-size: 16px;
+	line-height: 1;
 }
 
 /* Frosted noise texture on buttons */
