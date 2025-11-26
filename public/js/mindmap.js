@@ -380,6 +380,12 @@ function renderMindMap(data) {
     .enter()
     .append('g')
     .attr('class', 'node')
+    .style('cursor', 'pointer')
+    .on('click', function(event, d) {
+      event.stopPropagation();
+      const currentLanguage = languageSelect.value;
+      showTopicDescription(d.label, currentLanguage);
+    })
     .call(d3.drag()
       .on('start', dragstarted)
       .on('drag', dragged)
@@ -462,3 +468,228 @@ window.addEventListener('resize', () => {
     simulation.alpha(0.3).restart();
   }
 });
+
+// Topic Descriptions Database
+const topicDescriptions = {
+  // Languages
+  "JAVASCRIPT": {
+    title: "JavaScript",
+    content: `
+      <p>JavaScript is a high-level, interpreted programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS. It enables interactive web pages and is an essential part of web applications.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Dynamic Typing:</strong> Variables can hold values of any type without type declarations</li>
+        <li><strong>First-class Functions:</strong> Functions are treated as first-class citizens</li>
+        <li><strong>Prototype-based OOP:</strong> Object-oriented programming using prototypes</li>
+        <li><strong>Asynchronous Programming:</strong> Non-blocking operations with Promises and async/await</li>
+        <li><strong>Event-driven:</strong> Responds to user interactions and system events</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Web development (frontend & backend with Node.js), mobile apps (React Native), desktop apps (Electron), game development, IoT applications, and serverless functions.</p>
+    `
+  },
+  "PYTHON": {
+    title: "Python",
+    content: `
+      <p>Python is a high-level, interpreted programming language known for its simplicity and readability. It emphasizes code readability with its use of significant indentation.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Simple Syntax:</strong> Easy to learn and read, reducing development time</li>
+        <li><strong>Extensive Libraries:</strong> Rich standard library and third-party packages</li>
+        <li><strong>Multi-paradigm:</strong> Supports procedural, OOP, and functional programming</li>
+        <li><strong>Interpreted:</strong> No compilation step, code runs directly</li>
+        <li><strong>Cross-platform:</strong> Runs on Windows, macOS, Linux, and more</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Data science, machine learning, web development, automation, scientific computing, artificial intelligence, and scripting.</p>
+    `
+  },
+  "JAVA": {
+    title: "Java",
+    content: `
+      <p>Java is a class-based, object-oriented programming language designed to have as few implementation dependencies as possible. It follows the "write once, run anywhere" (WORA) principle.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Platform Independent:</strong> Code runs on any device with JVM</li>
+        <li><strong>Object-Oriented:</strong> Everything is an object, promoting code reusability</li>
+        <li><strong>Strongly Typed:</strong> Type checking at compile time</li>
+        <li><strong>Automatic Memory Management:</strong> Garbage collection handles memory</li>
+        <li><strong>Rich Ecosystem:</strong> Extensive libraries and frameworks</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Enterprise applications, Android mobile apps, web applications, distributed systems, big data processing, and server-side applications.</p>
+    `
+  },
+  "C++": {
+    title: "C++",
+    content: `
+      <p>C++ is a general-purpose programming language created as an extension of C. It provides object-oriented features while maintaining the efficiency and flexibility of C.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Performance:</strong> Compiled to machine code for maximum efficiency</li>
+        <li><strong>Memory Control:</strong> Direct memory manipulation with pointers</li>
+        <li><strong>OOP Support:</strong> Classes, inheritance, polymorphism, encapsulation</li>
+        <li><strong>STL:</strong> Standard Template Library with powerful data structures</li>
+        <li><strong>Multi-paradigm:</strong> Supports procedural, OOP, and generic programming</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>System software, game engines, real-time systems, embedded systems, high-performance applications, and graphics-intensive programs.</p>
+    `
+  },
+  "C#": {
+    title: "C#",
+    content: `
+      <p>C# (C-Sharp) is a modern, object-oriented programming language developed by Microsoft. It runs on the .NET framework and is designed for building a variety of applications.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Type-safe:</strong> Strong type checking prevents common errors</li>
+        <li><strong>Modern Syntax:</strong> Clean, expressive syntax with LINQ support</li>
+        <li><strong>Async/Await:</strong> Built-in asynchronous programming support</li>
+        <li><strong>.NET Integration:</strong> Access to extensive .NET libraries</li>
+        <li><strong>Cross-platform:</strong> .NET Core enables cross-platform development</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Windows desktop applications, web applications with ASP.NET, game development with Unity, mobile apps with Xamarin, and cloud services.</p>
+    `
+  },
+  "GO": {
+    title: "Go (Golang)",
+    content: `
+      <p>Go is a statically typed, compiled programming language designed at Google. It's known for its simplicity, efficiency, and excellent support for concurrent programming.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Simplicity:</strong> Clean syntax with minimal keywords</li>
+        <li><strong>Concurrency:</strong> Goroutines and channels for easy parallel programming</li>
+        <li><strong>Fast Compilation:</strong> Compiles quickly to native machine code</li>
+        <li><strong>Garbage Collection:</strong> Automatic memory management</li>
+        <li><strong>Built-in Testing:</strong> Native testing and benchmarking support</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Microservices, cloud infrastructure, DevOps tools, network programming, distributed systems, and command-line applications.</p>
+    `
+  },
+  "RUST": {
+    title: "Rust",
+    content: `
+      <p>Rust is a systems programming language focused on safety, speed, and concurrency. It achieves memory safety without using garbage collection.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Memory Safety:</strong> Prevents null pointer and buffer overflow errors at compile time</li>
+        <li><strong>Zero-cost Abstractions:</strong> High-level features without runtime overhead</li>
+        <li><strong>Ownership System:</strong> Unique approach to memory management</li>
+        <li><strong>Concurrency:</strong> Safe concurrent programming without data races</li>
+        <li><strong>Performance:</strong> Speed comparable to C and C++</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Systems programming, embedded systems, WebAssembly, blockchain, game engines, command-line tools, and performance-critical applications.</p>
+    `
+  },
+  "TYPESCRIPT": {
+    title: "TypeScript",
+    content: `
+      <p>TypeScript is a strongly typed superset of JavaScript that compiles to plain JavaScript. It adds optional static typing and class-based object-oriented programming to JavaScript.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Static Typing:</strong> Catch errors during development, not runtime</li>
+        <li><strong>JavaScript Superset:</strong> All valid JavaScript is valid TypeScript</li>
+        <li><strong>Advanced IDE Support:</strong> Better autocomplete and refactoring</li>
+        <li><strong>Modern Features:</strong> Use latest ECMAScript features</li>
+        <li><strong>Type Inference:</strong> Automatic type detection</li>
+      </ul>
+      <h3>Common Use Cases</h3>
+      <p>Large-scale web applications, Angular/React/Vue projects, Node.js backends, enterprise software, and any JavaScript project requiring type safety.</p>
+    `
+  },
+  
+  // Generic topic descriptions
+  "Fundamentals": {
+    title: "Programming Fundamentals",
+    content: `
+      <p>Fundamentals are the core building blocks of programming. Mastering these concepts is essential for becoming a proficient developer.</p>
+      <h3>What You'll Learn</h3>
+      <ul>
+        <li>Data types and variables</li>
+        <li>Control flow structures (if/else, loops)</li>
+        <li>Functions and code organization</li>
+        <li>Basic operators and expressions</li>
+        <li>Error handling basics</li>
+      </ul>
+      <p>These foundational concepts apply across all programming languages and form the basis for more advanced topics.</p>
+    `
+  },
+  "Advanced Concepts": {
+    title: "Advanced Programming Concepts",
+    content: `
+      <p>Advanced concepts build upon fundamentals to create more sophisticated and efficient programs.</p>
+      <h3>Topics Covered</h3>
+      <ul>
+        <li>Asynchronous programming patterns</li>
+        <li>Object-oriented design principles</li>
+        <li>Functional programming techniques</li>
+        <li>Module systems and code organization</li>
+        <li>Design patterns and best practices</li>
+      </ul>
+      <p>Mastering these concepts enables you to write scalable, maintainable, and performant code.</p>
+    `
+  }
+};
+
+// Generate description for any topic
+function getTopicDescription(topicName, language = null) {
+  // Check if exact match exists
+  if (topicDescriptions[topicName]) {
+    return topicDescriptions[topicName];
+  }
+  
+  // Generate generic description
+  return {
+    title: topicName,
+    content: `
+      <p><strong>${topicName}</strong> is an important concept in ${language || 'programming'}.</p>
+      <h3>Overview</h3>
+      <p>This topic covers essential aspects that every developer should understand. It includes various subtopics and concepts that build upon each other to create a comprehensive understanding.</p>
+      <h3>Key Points</h3>
+      <ul>
+        <li>Core principles and foundations</li>
+        <li>Practical applications and use cases</li>
+        <li>Best practices and patterns</li>
+        <li>Common pitfalls to avoid</li>
+      </ul>
+      <h3>Learning Path</h3>
+      <p>Start with the basics and gradually progress to more advanced concepts. Practice regularly and apply what you learn in real projects for the best results.</p>
+    `
+  };
+}
+
+// Modal functionality
+const modal = document.getElementById('description-modal');
+const modalTitle = document.getElementById('modal-topic-name');
+const modalBody = document.getElementById('modal-body');
+const modalClose = document.getElementById('modal-close');
+
+function showTopicDescription(topicName, language) {
+  const description = getTopicDescription(topicName, language);
+  modalTitle.textContent = description.title;
+  modalBody.innerHTML = description.content;
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  modal.classList.remove('active');
+}
+
+modalClose.addEventListener('click', closeModal);
+
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    closeModal();
+  }
+});
+
+// ESC key to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) {
+    closeModal();
+  }
+});
+
