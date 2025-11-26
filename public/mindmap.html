@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+      integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Mind Map - ChatCord</title>
+    <style>
+      .mindmap-container {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 80px);
+        margin-top: 80px;
+      }
+
+      .controls-panel {
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        background: rgba(31, 41, 55, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        padding: 20px;
+        z-index: 100;
+        max-width: 300px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .controls-panel h3 {
+        margin: 0 0 15px 0;
+        color: var(--neon-cyan);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .control-group {
+        margin-bottom: 15px;
+      }
+
+      .control-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .control-group select {
+        width: 100%;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .control-group select:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--neon-cyan);
+      }
+
+      .control-group select option {
+        background: #1f2937;
+        color: white;
+      }
+
+      .generate-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+      }
+
+      .generate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(96, 165, 250, 0.4);
+      }
+
+      .generate-btn:active {
+        transform: translateY(0);
+      }
+
+      #mindmap-svg {
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+      }
+
+      .node circle {
+        fill: linear-gradient(135deg, #60a5fa, #a78bfa);
+        stroke: rgba(255, 255, 255, 0.3);
+        stroke-width: 2px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .node:hover circle {
+        stroke: var(--neon-cyan);
+        stroke-width: 3px;
+        filter: drop-shadow(0 0 10px var(--neon-cyan));
+      }
+
+      .node text {
+        font-size: 12px;
+        font-weight: 600;
+        fill: white;
+        text-anchor: middle;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .link {
+        stroke: rgba(96, 165, 250, 0.4);
+        stroke-width: 2px;
+        fill: none;
+      }
+
+      .zoom-controls {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .zoom-btn {
+        width: 50px;
+        height: 50px;
+        background: rgba(31, 41, 55, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .zoom-btn:hover {
+        background: rgba(59, 130, 246, 0.5);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(0, 255, 247, 0.4);
+      }
+
+      .info-panel {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: rgba(31, 41, 55, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        padding: 15px;
+        z-index: 100;
+        max-width: 250px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .info-panel h4 {
+        margin: 0 0 10px 0;
+        color: var(--neon-cyan);
+        font-size: 14px;
+      }
+
+      .info-panel p {
+        margin: 5px 0;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+      }
+
+      /* Dark mode styles */
+      body.dark .controls-panel,
+      body.dark .info-panel {
+        background: rgba(17, 24, 39, 0.95);
+      }
+
+      body:not(.dark) .controls-panel,
+      body:not(.dark) .info-panel {
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      body:not(.dark) .controls-panel h3,
+      body:not(.dark) .info-panel h4 {
+        color: #3b82f6;
+      }
+
+      body:not(.dark) .control-group label,
+      body:not(.dark) .info-panel p {
+        color: rgba(0, 0, 0, 0.8);
+      }
+
+      body:not(.dark) .control-group select {
+        background: rgba(0, 0, 0, 0.05);
+        color: #1f2937;
+      }
+
+      body:not(.dark) .zoom-btn {
+        background: rgba(255, 255, 255, 0.95);
+        color: #1f2937;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Cosmic space background layers -->
+    <div class="space-layer"></div>
+    <div class="stars-distant"></div>
+    <div class="stars-mid"></div>
+    <div class="stars-close"></div>
+    <div class="clouds"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="comet"></div>
+    <div class="comet"></div>
+
+    <!-- Header -->
+    <header class="chat-header">
+      <h1><i class="fas fa-project-diagram"></i> Mind Map</h1>
+      <div style="display: flex; gap: 10px;">
+        <a href="/chat.html" class="btn" style="background: linear-gradient(135deg, #60a5fa, #a78bfa);">
+          <i class="fas fa-comments"></i> Chat
+        </a>
+        <a href="/dashboard.html" class="btn" style="background: linear-gradient(135deg, #60a5fa, #a78bfa);">
+          <i class="fas fa-rocket"></i> Dashboard
+        </a>
+        <a href="/rooms.html" class="btn">
+          <i class="fas fa-home"></i> Home
+        </a>
+      </div>
+    </header>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+      <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
+      
+      <div class="control-group">
+        <label for="language-select">
+          <i class="fas fa-globe"></i> Programming Language
+        </label>
+        <select id="language-select">
+          <option value="">Select Language...</option>
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="cpp">C++</option>
+          <option value="csharp">C#</option>
+          <option value="go">Go</option>
+          <option value="rust">Rust</option>
+          <option value="typescript">TypeScript</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="topic-select">
+          <i class="fas fa-book"></i> Main Topic
+        </label>
+        <select id="topic-select" disabled>
+          <option value="">Select Topic...</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="subtopic-select">
+          <i class="fas fa-list"></i> Subtopic Focus
+        </label>
+        <select id="subtopic-select" disabled>
+          <option value="">All Subtopics</option>
+        </select>
+      </div>
+
+      <button class="generate-btn" id="generate-btn" disabled>
+        <i class="fas fa-magic"></i> Generate Mind Map
+      </button>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+      <h4><i class="fas fa-info-circle"></i> Controls</h4>
+      <p><i class="fas fa-mouse"></i> Drag nodes to reposition</p>
+      <p><i class="fas fa-search-plus"></i> Scroll to zoom in/out</p>
+      <p><i class="fas fa-hand-paper"></i> Click & drag canvas to pan</p>
+      <p><i class="fas fa-circle"></i> Click node to expand/collapse</p>
+    </div>
+
+    <!-- Zoom Controls -->
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoom-in" title="Zoom In">
+        <i class="fas fa-plus"></i>
+      </button>
+      <button class="zoom-btn" id="zoom-reset" title="Reset View">
+        <i class="fas fa-compress"></i>
+      </button>
+      <button class="zoom-btn" id="zoom-out" title="Zoom Out">
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+
+    <!-- Mind Map Container -->
+    <div class="mindmap-container">
+      <svg id="mindmap-svg"></svg>
+    </div>
+
+    <!-- Theme toggle -->
+    <button id="theme-toggle" class="btn theme-toggle" aria-label="Toggle theme">🌗</button>
+
+    <script src="js/mindmap.js"></script>
+  </body>
+</html>
