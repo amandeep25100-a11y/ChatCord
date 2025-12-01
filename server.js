@@ -135,8 +135,9 @@ app.post('/api/ai-chat', express.json(), async (req, res) => {
       });
     }
 
-    // Call Google Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+    // Call Google Gemini API (using gemini-1.5-flash model)
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
