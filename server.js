@@ -117,6 +117,64 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
   }
 });
 
+// AI Chat endpoint
+app.post('/api/ai-chat', express.json(), async (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    // Check if OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY) {
+      return res.json({ 
+        response: "I'm currently in demo mode. To enable AI responses, please configure the OPENAI_API_KEY environment variable.\n\nHowever, I can still help! Here's a simple example:\n\n```javascript\n// Reverse a string\nfunction reverseString(str) {\n  return str.split('').reverse().join('');\n}\n\nconsole.log(reverseString('hello')); // 'olleh'\n```"
+      });
+    }
+
+    // Call OpenAI API
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful coding assistant. Help users with programming questions, debugging, code explanations, and best practices. Format code using markdown code blocks with language specified. Be concise but thorough. Focus on JavaScript, Python, Java, C++, and web development.'
+          },
+          {
+            role: 'user',
+            content: message
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('OpenAI API request failed');
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+
+    res.json({ response: aiResponse });
+
+  } catch (error) {
+    console.error('AI Chat error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get AI response',
+      response: "Sorry, I encountered an error. Please try again later. 😔\n\nIn the meantime, here's a helpful tip:\n\n**Always use `const` for variables that won't be reassigned, and `let` for variables that will change. Avoid `var` in modern JavaScript.**"
+    });
+  }
+});
+
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
   res.status(200).json({ 

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+      integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <title>AI Code Assistant - CodeX</title>
+    <style>
+      .ai-chat-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 100px);
+        margin-top: 100px;
+      }
+
+      .chat-header-ai {
+        background: rgba(31, 41, 55, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(96, 165, 250, 0.3);
+        border-radius: 16px 16px 0 0;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .chat-header-ai h2 {
+        margin: 0;
+        color: var(--neon-cyan);
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .chat-header-ai p {
+        margin: 5px 0 0 0;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+      }
+
+      .ai-messages-container {
+        flex: 1;
+        background: rgba(31, 41, 55, 0.95);
+        backdrop-filter: blur(16px);
+        border-left: 1.5px solid rgba(96, 165, 250, 0.3);
+        border-right: 1.5px solid rgba(96, 165, 250, 0.3);
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .message-bubble {
+        max-width: 80%;
+        padding: 15px 20px;
+        border-radius: 18px;
+        animation: slideIn 0.3s ease;
+        word-wrap: break-word;
+      }
+
+      .message-bubble.user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+      }
+
+      .message-bubble.bot {
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(96, 165, 250, 0.2);
+        color: rgba(255, 255, 255, 0.95);
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .message-bubble.bot .bot-avatar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #10b981;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .message-bubble pre {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 10px 0;
+        border: 1px solid rgba(96, 165, 250, 0.2);
+      }
+
+      .message-bubble code {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+      }
+
+      .message-bubble p {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+
+      .typing-indicator {
+        align-self: flex-start;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(96, 165, 250, 0.2);
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        display: none;
+      }
+
+      .typing-indicator.active {
+        display: block;
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+
+      .typing-dots span {
+        width: 8px;
+        height: 8px;
+        background: #60a5fa;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out;
+      }
+
+      .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+      .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+      @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+      }
+
+      .ai-input-container {
+        background: rgba(31, 41, 55, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(96, 165, 250, 0.3);
+        border-radius: 0 0 16px 16px;
+        padding: 20px;
+      }
+
+      .ai-input-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .ai-input {
+        flex: 1;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        color: white;
+        font-size: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .ai-input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(0, 255, 247, 0.2);
+      }
+
+      .ai-send-btn {
+        padding: 15px 30px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .ai-send-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+      }
+
+      .ai-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .quick-questions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .quick-question-btn {
+        padding: 8px 16px;
+        background: rgba(96, 165, 250, 0.1);
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        border-radius: 20px;
+        color: #60a5fa;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .quick-question-btn:hover {
+        background: rgba(96, 165, 250, 0.2);
+        border-color: var(--neon-cyan);
+        transform: translateY(-2px);
+      }
+
+      /* Dark mode adjustments */
+      body:not(.dark) .chat-header-ai,
+      body:not(.dark) .ai-messages-container,
+      body:not(.dark) .ai-input-container {
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      body:not(.dark) .chat-header-ai h2 {
+        color: #3b82f6;
+      }
+
+      body:not(.dark) .chat-header-ai p {
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      body:not(.dark) .message-bubble.bot {
+        background: rgba(0, 0, 0, 0.05);
+        color: rgba(0, 0, 0, 0.9);
+      }
+
+      body:not(.dark) .ai-input {
+        background: rgba(0, 0, 0, 0.05);
+        color: #1f2937;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Scrollbar styling */
+      .ai-messages-container::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .ai-messages-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+      }
+
+      .ai-messages-container::-webkit-scrollbar-thumb {
+        background: rgba(96, 165, 250, 0.5);
+        border-radius: 10px;
+      }
+
+      .ai-messages-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(96, 165, 250, 0.7);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Cosmic space background layers -->
+    <div class="space-layer"></div>
+    <div class="stars-distant"></div>
+    <div class="stars-mid"></div>
+    <div class="stars-close"></div>
+    <div class="clouds"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="comet"></div>
+    <div class="comet"></div>
+
+    <!-- Header -->
+    <header class="chat-header">
+      <h1><i class="fas fa-robot"></i> AI Code Assistant</h1>
+      <div style="display: flex; gap: 10px;">
+        <a href="/rooms.html" class="btn" style="background: linear-gradient(135deg, #60a5fa, #a78bfa);">
+          <i class="fas fa-comments"></i> Chat Rooms
+        </a>
+        <a href="/dashboard.html" class="btn" style="background: linear-gradient(135deg, #60a5fa, #a78bfa);">
+          <i class="fas fa-rocket"></i> Dashboard
+        </a>
+        <a href="/mindmap.html" class="btn" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+          <i class="fas fa-project-diagram"></i> Mind Map
+        </a>
+      </div>
+    </header>
+
+    <!-- AI Chat Container -->
+    <div class="ai-chat-container">
+      <div class="chat-header-ai">
+        <h2>
+          <i class="fas fa-robot"></i>
+          AI Code Assistant
+        </h2>
+        <p>Ask me anything about coding! I can help with algorithms, debugging, syntax, and more.</p>
+      </div>
+
+      <div class="ai-messages-container" id="ai-messages">
+        <div class="message-bubble bot">
+          <div class="bot-avatar">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+          </div>
+          <p>Hello! 👋 I'm your AI coding assistant. I can help you with:</p>
+          <ul>
+            <li>Explaining programming concepts</li>
+            <li>Debugging code issues</li>
+            <li>Writing code snippets</li>
+            <li>Algorithm explanations</li>
+            <li>Best practices and tips</li>
+          </ul>
+          <p>What coding question can I help you with today?</p>
+        </div>
+
+        <div class="typing-indicator" id="typing-indicator">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-input-container">
+        <div class="quick-questions">
+          <button class="quick-question-btn" data-question="How do I reverse a string in JavaScript?">
+            Reverse a string
+          </button>
+          <button class="quick-question-btn" data-question="Explain the difference between let and const in JavaScript">
+            let vs const
+          </button>
+          <button class="quick-question-btn" data-question="How do I handle async/await in JavaScript?">
+            async/await
+          </button>
+          <button class="quick-question-btn" data-question="What are closures in JavaScript?">
+            Closures
+          </button>
+        </div>
+
+        <form class="ai-input-form" id="ai-form">
+          <input
+            type="text"
+            id="ai-input"
+            class="ai-input"
+            placeholder="Ask a coding question..."
+            autocomplete="off"
+            required
+          />
+          <button type="submit" class="ai-send-btn" id="send-btn">
+            <i class="fas fa-paper-plane"></i>
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Theme toggle -->
+    <button id="theme-toggle" class="btn theme-toggle" aria-label="Toggle theme">🌗</button>
+
+    <script src="js/ai-chat.js"></script>
+  </body>
+</html>
