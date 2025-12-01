@@ -117,7 +117,7 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
   }
 });
 
-// AI Chat endpoint
+// AI Chat endpoint (using Google Gemini)
 app.post('/api/ai-chat', express.json(), async (req, res) => {
   try {
     const { message } = req.body;
@@ -126,43 +126,42 @@ app.post('/api/ai-chat', express.json(), async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
+    // Use Gemini API
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyDcHd7hXAAGMDS0X2ebptc2UGVW5Tz_dIg';
+    
+    if (!GEMINI_API_KEY) {
       return res.json({ 
-        response: "I'm currently in demo mode. To enable AI responses, please configure the OPENAI_API_KEY environment variable.\n\nHowever, I can still help! Here's a simple example:\n\n```javascript\n// Reverse a string\nfunction reverseString(str) {\n  return str.split('').reverse().join('');\n}\n\nconsole.log(reverseString('hello')); // 'olleh'\n```"
+        response: "I'm currently in demo mode. To enable AI responses, please configure the GEMINI_API_KEY environment variable.\n\nHowever, I can still help! Here's a simple example:\n\n```javascript\n// Reverse a string\nfunction reverseString(str) {\n  return str.split('').reverse().join('');\n}\n\nconsole.log(reverseString('hello')); // 'olleh'\n```"
       });
     }
 
-    // Call OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Google Gemini API
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful coding assistant. Help users with programming questions, debugging, code explanations, and best practices. Format code using markdown code blocks with language specified. Be concise but thorough. Focus on JavaScript, Python, Java, C++, and web development.'
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000
+        contents: [{
+          parts: [{
+            text: `You are a helpful coding assistant. Help users with programming questions, debugging, code explanations, and best practices. Format code using markdown code blocks with language specified. Be concise but thorough. Focus on JavaScript, Python, Java, C++, and web development.\n\nUser question: ${message}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1000,
+        }
       })
     });
 
     if (!response.ok) {
-      throw new Error('OpenAI API request failed');
+      const errorData = await response.text();
+      console.error('Gemini API error:', errorData);
+      throw new Error('Gemini API request failed');
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = data.candidates[0].content.parts[0].text;
 
     res.json({ response: aiResponse });
 
