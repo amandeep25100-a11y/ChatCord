@@ -123,14 +123,18 @@ async function sendMessage(message) {
       body: JSON.stringify({ message }),
     });
     
-    if (!response.ok) {
-      throw new Error('Failed to get response from AI');
-    }
-    
     const data = await response.json();
     
     hideTyping();
-    addMessage(data.response, false);
+    
+    // Display the response (either AI response or error message)
+    if (data.response) {
+      addMessage(data.response, false);
+    } else if (data.error) {
+      addMessage('Sorry, I encountered an error. Please try again. 😔', false);
+    } else {
+      addMessage('Sorry, I received an unexpected response. Please try again. 😔', false);
+    }
     
   } catch (error) {
     console.error('Error:', error);
