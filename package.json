@@ -1,7 +1,7 @@
 {
-  "name": "chatcord",
+  "name": "codex",
   "version": "1.0.0",
-  "description": "Realtime chat app with rooms",
+  "description": "Real-time code learning platform with chat rooms and interactive mind maps",
   "main": "server.js",
   "engines": {
     "node": "18"

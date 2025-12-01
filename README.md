@@ -1,6 +1,6 @@
-# 💬 ChatCord - Real-time Chat Application
+# 💬 CodeX - Code Learning Platform
 
-A modern real-time chat application with persistent message history, featuring a beautiful glassmorphism UI with neon accents, light/dark mode, and **PostgreSQL database integration** for message persistence.
+A modern real-time code learning platform with chat rooms, interactive mind maps, and persistent message history, featuring a beautiful glassmorphism UI with neon accents, light/dark mode, and **PostgreSQL database integration** for message persistence.
 
 
 

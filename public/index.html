@@ -11,7 +11,7 @@
 			crossorigin="anonymous"
 		/>
 		<link rel="stylesheet" href="css/style.css" />
-		<title>ChatCord App</title>
+		<title>CodeX - Code Learning Platform</title>
 		<style>
 			.auth-section {
 				margin: 20px 0;
@@ -68,7 +68,7 @@
 			</div>
 			<i class="fas fa-smile logo-icon"></i>
 		</div>
-		<div class="loading-text">Welcome to ChatCord...</div>
+		<div class="loading-text">Welcome to CodeX...</div>
 		<div class="loading-bar-container">
 			<div class="loading-bar"></div>
 		</div>
@@ -88,7 +88,7 @@
 		
 		<div class="join-container">
 			<header class="join-header">
-				<h1><i class="fas fa-smile"></i> ChatCord</h1>
+				<h1><i class="fas fa-smile"></i> CodeX</h1>
 			</header>
 			<main class="join-main">
 				<!-- Auth0 Section -->
@@ -174,7 +174,7 @@
 						
 						// Prefill username from localStorage (if present)
 						try {
-							const saved = localStorage.getItem('chatcordUser');
+							const saved = localStorage.getItem('codexUser');
 							if (saved) {
 								document.getElementById('username').value = saved;
 							}
@@ -205,7 +205,7 @@
 					
 					// Save username to localStorage
 					try {
-						localStorage.setItem('chatcordUser', username);
+						localStorage.setItem('codexUser', username);
 					} catch (e) {}
 					
 					// Redirect to rooms page with username after animation
@@ -227,7 +227,7 @@
 		<!-- Inline theme toggle logic for index (keeps index lightweight and avoids loading chat JS) -->
 		<script>
 		(function(){
-			const THEME_KEY = 'chatcordTheme';
+			const THEME_KEY = 'codexTheme';
 			const toggle = document.getElementById('theme-toggle');
 			function applyTheme(theme){
 				if(theme==='dark') document.body.classList.add('dark'); else document.body.classList.remove('dark');
