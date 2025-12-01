@@ -156,19 +156,32 @@ app.post('/api/ai-chat', express.json(), async (req, res) => {
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Gemini API error:', errorData);
-      throw new Error('Gemini API request failed');
+      console.error('Gemini API error status:', response.status);
+      console.error('Gemini API error response:', errorData);
+      
+      // Return user-friendly error with fallback response
+      return res.json({ 
+        response: "I'm having trouble connecting to the AI service right now. 😔\n\nLet me help you with a common example instead:\n\n```javascript\n// Array methods in JavaScript\nconst numbers = [1, 2, 3, 4, 5];\n\n// Map - transform each element\nconst doubled = numbers.map(n => n * 2);\n// [2, 4, 6, 8, 10]\n\n// Filter - keep elements that match condition\nconst evens = numbers.filter(n => n % 2 === 0);\n// [2, 4]\n\n// Reduce - combine elements into single value\nconst sum = numbers.reduce((acc, n) => acc + n, 0);\n// 15\n```\n\nPlease try again in a moment!"
+      });
     }
 
     const data = await response.json();
-    const aiResponse = data.candidates[0].content.parts[0].text;
+    console.log('Gemini API response:', JSON.stringify(data, null, 2));
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Unexpected Gemini response structure:', data);
+      return res.json({ 
+        response: "I received an unusual response from the AI service. Here's a helpful tip instead:\n\n**JavaScript Best Practices:**\n- Use `const` for values that won't change\n- Use `let` for values that will change\n- Avoid `var` in modern JavaScript\n- Always use strict equality (`===`) instead of loose equality (`==`)"
+      });
+    }
 
+    const aiResponse = data.candidates[0].content.parts[0].text;
     res.json({ response: aiResponse });
 
   } catch (error) {
-    console.error('AI Chat error:', error);
-    res.status(500).json({ 
-      error: 'Failed to get AI response',
+    console.error('AI Chat error:', error.message);
+    console.error('Error stack:', error.stack);
+    res.json({ 
       response: "Sorry, I encountered an error. Please try again later. 😔\n\nIn the meantime, here's a helpful tip:\n\n**Always use `const` for variables that won't be reassigned, and `let` for variables that will change. Avoid `var` in modern JavaScript.**"
     });
   }
